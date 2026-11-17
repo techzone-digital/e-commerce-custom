@@ -1,6 +1,7 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Link } from 'react-router-dom';
 import App from '../App';
 import { ThemeToggle } from '../components/common/ThemeToggle';
+import { Signup, Login } from '../pages/Auth';
 
 export const router = createBrowserRouter([
   {
@@ -15,7 +16,24 @@ export const router = createBrowserRouter([
               <span className="font-serif text-xl tracking-wider text-text-main">
                 SHIVAM CRAFTS
               </span>
-              <ThemeToggle showLabel />
+              <div className="flex items-center gap-4 sm:gap-6">
+                <nav className="flex items-center gap-3 sm:gap-4 text-xs uppercase tracking-wider font-medium">
+                  <Link
+                    to="/login"
+                    className="text-text-secondary hover:text-primary transition-colors py-1.5 px-2"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className="px-3.5 py-1.5 rounded-full bg-primary hover:bg-primary-hover text-surface tracking-wider transition-colors shadow-sm"
+                  >
+                    Sign Up
+                  </Link>
+                </nav>
+                <div className="h-4 w-px bg-border" aria-hidden="true" />
+                <ThemeToggle showLabel />
+              </div>
             </header>
             <main className="flex-1 flex items-center justify-center p-6">
               <div className="w-full max-w-md p-8 rounded-lg bg-surface border border-border shadow-sm text-center transition-colors duration-200">
@@ -40,6 +58,14 @@ export const router = createBrowserRouter([
             </main>
           </div>
         ),
+      },
+      {
+        path: 'signup',
+        element: <Signup />,
+      },
+      {
+        path: 'login',
+        element: <Login />,
       },
     ],
   },

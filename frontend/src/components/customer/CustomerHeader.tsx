@@ -9,12 +9,13 @@ import {
   Gem,
 } from 'lucide-react';
 import { ThemeToggle } from '../common/ThemeToggle';
+import { AnnouncementBar } from './AnnouncementBar';
 
 const NAV_LINKS = [
   { label: 'Home', to: '/' },
-  { label: 'Shop', to: '/shop' },
-  { label: 'Categories', to: '/categories' },
-  { label: 'Contact', to: '/contact' },
+  { label: 'The Collections', to: '/shop' },
+  { label: 'Explore', to: '/categories' },
+  { label: 'Get in Touch', to: '/contact' },
 ];
 
 export const CustomerHeader: React.FC = () => {
@@ -52,15 +53,17 @@ export const CustomerHeader: React.FC = () => {
 
   return (
     <>
-      <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled
-            ? 'bg-surface/95 backdrop-blur-sm border-b border-border shadow-sm'
-            : 'bg-surface/90 backdrop-blur-sm border-b border-border'
-        }`}
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 md:h-20">
+      <div className="fixed top-0 left-0 right-0 z-50">
+        <AnnouncementBar />
+        <header
+          className={`transition-all duration-300 ${
+            isScrolled
+              ? 'bg-surface/95 backdrop-blur-sm border-b border-border shadow-sm'
+              : 'bg-surface/90 backdrop-blur-sm border-b border-border'
+          }`}
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16 md:h-20">
 
             {/* ── Logo / Brand ─────────────────────────────────────── */}
             <Link
@@ -162,6 +165,7 @@ export const CustomerHeader: React.FC = () => {
           </div>
         </div>
       </header>
+    </div>
 
       {/* ── Mobile Navigation Drawer ──────────────────────────────── */}
       <div
@@ -276,8 +280,8 @@ export const CustomerHeader: React.FC = () => {
         </nav>
       </div>
 
-      {/* Spacer to prevent content from going behind fixed header */}
-      <div className="h-16 md:h-20" aria-hidden="true" />
+      {/* Spacer to prevent content from going behind fixed header + announcement bar */}
+      <div className="h-[5.5rem] md:h-[6.75rem]" aria-hidden="true" />
     </>
   );
 };

@@ -34,3 +34,16 @@
     font-family: var(--font-cormorant, 'Cormorant Garamond', Georgia, serif);
   }
 }
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 28s linear infinite;
+}

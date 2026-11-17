@@ -2,6 +2,8 @@ import { createBrowserRouter, Link } from 'react-router-dom';
 import App from '../App';
 import { ThemeToggle } from '../components/common/ThemeToggle';
 import { Signup, Login } from '../pages/Auth';
+import { AdminLogin } from '../features/admin/auth/pages/AdminLogin';
+import { AdminSignup } from '../features/admin/auth/pages/AdminSignup';
 
 export const router = createBrowserRouter([
   {
@@ -66,6 +68,14 @@ export const router = createBrowserRouter([
       {
         path: 'login',
         element: <Login />,
+      },
+      {
+        path: 'admin/login',
+        element: <AdminLogin />,
+      },
+      {
+        path: 'admin/signup',
+        element: <AdminSignup />,
       },
     ],
   },

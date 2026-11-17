@@ -65,14 +65,14 @@ export const CustomerHeader: React.FC = () => {
             {/* ── Logo / Brand ─────────────────────────────────────── */}
             <Link
               to="/"
-              className="flex items-center gap-2.5 group flex-shrink-0"
+              className="flex items-center gap-2 group flex-shrink min-w-0"
               aria-label="Shivam Crafts — Home"
               onClick={closeMobileMenu}
             >
-              <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+              <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors flex-shrink-0">
                 <Gem className="w-3.5 h-3.5 text-primary" />
               </div>
-              <span className="font-serif text-lg md:text-xl tracking-wider text-text-main leading-none">
+              <span className="font-serif text-base sm:text-lg md:text-xl tracking-wider text-text-main leading-none truncate">
                 Shivam Crafts
               </span>
             </Link>
@@ -90,7 +90,7 @@ export const CustomerHeader: React.FC = () => {
             </nav>
 
             {/* ── Desktop Action Icons ──────────────────────────────── */}
-            <div className="hidden md:flex items-center gap-1.5">
+            <div className="hidden md:flex items-center gap-1.5 flex-shrink-0">
               {/* Search */}
               <button
                 type="button"
@@ -141,42 +141,21 @@ export const CustomerHeader: React.FC = () => {
               <ThemeToggle />
             </div>
 
-            {/* ── Mobile Right Icons ───────────────────────────────── */}
-            <div className="flex md:hidden items-center gap-1">
-              <button
-                type="button"
-                aria-label="Search"
-                className="p-2 rounded-full text-text-secondary hover:text-primary transition-colors"
-              >
-                <Search className="w-4 h-4" strokeWidth={1.75} />
-              </button>
-              <button
-                type="button"
-                aria-label="Wishlist"
-                className="p-2 rounded-full text-text-secondary hover:text-primary transition-colors"
-              >
-                <Heart className="w-4 h-4" strokeWidth={1.75} />
-              </button>
-              <button
-                type="button"
-                aria-label="Shopping bag"
-                className="p-2 rounded-full text-text-secondary hover:text-primary transition-colors"
-              >
-                <ShoppingBag className="w-4 h-4" strokeWidth={1.75} />
-              </button>
-              <ThemeToggle />
-              {/* Hamburger */}
+            {/* ── Mobile Right Icons & Hamburger Trigger ───────────── */}
+            <div className="flex md:hidden items-center gap-0.5 sm:gap-1 flex-shrink-0 ml-2">
+              <ThemeToggle className="p-1.5" />
+              {/* Hamburger Button: Guaranteed visible, never shrunk */}
               <button
                 type="button"
                 onClick={() => setIsMobileMenuOpen((prev) => !prev)}
                 aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
                 aria-expanded={isMobileMenuOpen}
-                className="p-2 rounded-full text-text-secondary hover:text-primary transition-colors"
+                className="p-2 rounded-full text-text-main hover:text-primary hover:bg-primary/10 transition-colors flex-shrink-0"
               >
                 {isMobileMenuOpen ? (
-                  <X className="w-5 h-5" strokeWidth={1.75} />
+                  <X className="w-5 h-5" strokeWidth={2} />
                 ) : (
-                  <Menu className="w-5 h-5" strokeWidth={1.75} />
+                  <Menu className="w-5 h-5" strokeWidth={2} />
                 )}
               </button>
             </div>
@@ -186,40 +165,78 @@ export const CustomerHeader: React.FC = () => {
 
       {/* ── Mobile Navigation Drawer ──────────────────────────────── */}
       <div
-        className={`fixed inset-0 z-40 md:hidden transition-opacity duration-300 ${
+        className={`fixed inset-0 z-50 md:hidden transition-opacity duration-300 ${
           isMobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
         aria-hidden={!isMobileMenuOpen}
       >
-        {/* Backdrop */}
+        {/* Subtle blur backdrop */}
         <div
-          className="absolute inset-0 bg-black/40"
+          className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity duration-300"
           onClick={closeMobileMenu}
           aria-hidden="true"
         />
 
-        {/* Drawer panel */}
+        {/* Drawer panel: max 80vw - 85vw, capped at 320px, fully integrated */}
         <nav
-          className={`absolute top-0 right-0 h-full w-72 max-w-[85vw] bg-surface flex flex-col shadow-2xl transition-transform duration-300 ${
+          className={`absolute top-0 right-0 h-full w-[82vw] max-w-xs bg-surface border-l border-border flex flex-col shadow-2xl transition-transform duration-300 ease-in-out ${
             isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
           aria-label="Mobile navigation"
         >
-          {/* Drawer Header */}
-          <div className="flex items-center justify-between px-6 py-5 border-b border-border">
-            <span className="font-serif text-lg tracking-wider text-text-main">Menu</span>
+          {/* Drawer Header with Brand & Close Button */}
+          <div className="flex items-center justify-between px-5 py-4 border-b border-border bg-surface/50">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center">
+                <Gem className="w-3.5 h-3.5 text-primary" />
+              </div>
+              <span className="font-serif text-base tracking-wider text-text-main">Menu</span>
+            </div>
             <button
               type="button"
               onClick={closeMobileMenu}
               aria-label="Close menu"
-              className="p-2 rounded-full text-text-secondary hover:text-primary transition-colors"
+              className="p-1.5 rounded-full text-text-secondary hover:text-primary hover:bg-primary/10 transition-colors"
             >
-              <X className="w-5 h-5" strokeWidth={1.75} />
+              <X className="w-5 h-5" strokeWidth={2} />
             </button>
           </div>
 
-          {/* Nav Links */}
-          <div className="flex-1 overflow-y-auto px-6 py-6 space-y-1">
+          {/* Quick Action Icons within Drawer */}
+          <div className="flex items-center justify-around py-3 px-4 border-b border-border/60 bg-bg/40">
+            <button
+              type="button"
+              aria-label="Search"
+              onClick={closeMobileMenu}
+              className="flex items-center gap-1.5 text-xs text-text-secondary hover:text-primary transition-colors py-1 px-2"
+            >
+              <Search className="w-4 h-4" strokeWidth={1.75} />
+              <span>Search</span>
+            </button>
+            <div className="w-px h-3.5 bg-border" aria-hidden="true" />
+            <button
+              type="button"
+              aria-label="Wishlist"
+              onClick={closeMobileMenu}
+              className="flex items-center gap-1.5 text-xs text-text-secondary hover:text-primary transition-colors py-1 px-2"
+            >
+              <Heart className="w-4 h-4" strokeWidth={1.75} />
+              <span>Wishlist</span>
+            </button>
+            <div className="w-px h-3.5 bg-border" aria-hidden="true" />
+            <button
+              type="button"
+              aria-label="Shopping bag"
+              onClick={closeMobileMenu}
+              className="flex items-center gap-1.5 text-xs text-text-secondary hover:text-primary transition-colors py-1 px-2"
+            >
+              <ShoppingBag className="w-4 h-4" strokeWidth={1.75} />
+              <span>Cart</span>
+            </button>
+          </div>
+
+          {/* Main Navigation Links */}
+          <div className="flex-1 overflow-y-auto px-5 py-4 space-y-1">
             {NAV_LINKS.map((link) => (
               <NavLink
                 key={link.to}
@@ -227,8 +244,10 @@ export const CustomerHeader: React.FC = () => {
                 end={link.to === '/'}
                 onClick={closeMobileMenu}
                 className={({ isActive }) =>
-                  `block py-3 px-2 text-sm uppercase tracking-widest font-medium border-b border-border/50 transition-colors duration-200 ${
-                    isActive ? 'text-primary' : 'text-text-secondary hover:text-text-main'
+                  `block py-3 px-3 rounded-lg text-xs uppercase tracking-widest font-medium transition-colors duration-200 ${
+                    isActive
+                      ? 'bg-primary/10 text-primary font-semibold'
+                      : 'text-text-secondary hover:text-text-main hover:bg-bg/60'
                   }`
                 }
               >
@@ -237,19 +256,19 @@ export const CustomerHeader: React.FC = () => {
             ))}
           </div>
 
-          {/* Auth Buttons */}
-          <div className="px-6 pb-8 space-y-3 border-t border-border pt-6">
+          {/* Auth Actions in Drawer Footer */}
+          <div className="p-5 border-t border-border bg-surface/50 space-y-2.5">
             <Link
               to="/login"
               onClick={closeMobileMenu}
-              className="block w-full text-center py-3 px-4 border border-border rounded-full text-sm uppercase tracking-wider font-medium text-text-secondary hover:text-primary hover:border-primary transition-colors duration-200"
+              className="block w-full text-center py-2.5 px-4 border border-border rounded-full text-xs uppercase tracking-wider font-medium text-text-secondary hover:text-primary hover:border-primary transition-colors duration-200"
             >
               Login
             </Link>
             <Link
               to="/signup"
               onClick={closeMobileMenu}
-              className="block w-full text-center py-3 px-4 bg-primary hover:bg-primary-hover text-surface rounded-full text-sm uppercase tracking-wider font-medium transition-colors duration-200"
+              className="block w-full text-center py-2.5 px-4 bg-primary hover:bg-primary-hover text-surface rounded-full text-xs uppercase tracking-wider font-medium transition-colors duration-200 shadow-sm"
             >
               Sign Up
             </Link>

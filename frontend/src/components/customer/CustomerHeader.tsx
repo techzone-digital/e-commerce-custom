@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { ThemeToggle } from '../common/ThemeToggle';
 import { AnnouncementBar } from './AnnouncementBar';
+import { AccountDropdown } from './AccountDropdown';
 
 const NAV_LINKS = [
   { label: 'Home', to: '/' },
@@ -121,22 +122,8 @@ export const CustomerHeader: React.FC = () => {
                 <ShoppingBag className="w-4.5 h-4.5" strokeWidth={1.75} />
               </button>
 
-              {/* Divider */}
-              <div className="w-px h-5 bg-border mx-1" aria-hidden="true" />
-
-              {/* Auth Links */}
-              <Link
-                to="/login"
-                className="text-xs uppercase tracking-wider font-medium text-text-secondary hover:text-primary transition-colors duration-200 px-2 py-1"
-              >
-                Login
-              </Link>
-              <Link
-                to="/signup"
-                className="text-xs uppercase tracking-wider font-medium bg-primary hover:bg-primary-hover text-surface px-4 py-2 rounded-full transition-colors duration-200 shadow-sm"
-              >
-                Sign Up
-              </Link>
+              {/* Account Dropdown */}
+              <AccountDropdown />
 
               {/* Divider */}
               <div className="w-px h-5 bg-border mx-1" aria-hidden="true" />
@@ -146,6 +133,7 @@ export const CustomerHeader: React.FC = () => {
 
             {/* ── Mobile Right Icons & Hamburger Trigger ───────────── */}
             <div className="flex md:hidden items-center gap-0.5 sm:gap-1 flex-shrink-0 ml-2">
+              <AccountDropdown />
               <ThemeToggle className="p-1.5" />
               {/* Hamburger Button: Guaranteed visible, never shrunk */}
               <button

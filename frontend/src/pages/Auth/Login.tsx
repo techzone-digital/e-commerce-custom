@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
-import { ThemeToggle } from '../../components/common';
+import { ThemeToggle, GoogleLoginButton } from '../../components/common';
 import { loginValidationSchema } from './login.validation';
 
 interface LoginFormValues {
@@ -226,6 +226,28 @@ export const Login: React.FC = () => {
                 </button>
               </div>
             </form>
+
+            {/* Divider */}
+            <div className="relative my-7">
+              <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                <div className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-[10px] uppercase font-sans tracking-[0.2em]">
+                <span className="bg-bg px-3 text-text-secondary/60">
+                  Or continue with
+                </span>
+              </div>
+            </div>
+
+            {/* Google Login UI */}
+            <div>
+              <GoogleLoginButton
+                text="Continue with Google"
+                onClick={() => {
+                  console.log('Google login clicked (UI placeholder - auth integration pending)');
+                }}
+              />
+            </div>
 
             {/* Footer link */}
             <div className="mt-10 pt-7 border-t border-border">

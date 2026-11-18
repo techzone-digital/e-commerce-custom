@@ -55,8 +55,7 @@ export const AdminSignup: React.FC = () => {
       >
         {/* Photo — different focal crop from Login for visual distinction */}
         <img
-          src="https://images.unsplash.com/photo-1573408301185-9519f94816b5?w=1200&q=85&auto=format&fit=crop&crop=center"
-          alt=""
+          src="https://images.unsplash.com/photo-1617038220319-276d3cfab638?w=1200&q=85&auto=format&fit=crop"
           className="absolute inset-0 w-full h-full object-cover"
           loading="eager"
           decoding="async"

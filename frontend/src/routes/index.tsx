@@ -5,6 +5,7 @@ import { AdminLogin } from '../features/admin/auth/pages/AdminLogin';
 import { AdminSignup } from '../features/admin/auth/pages/AdminSignup';
 import { CustomerLayout } from '../layouts/CustomerLayout';
 import { HomePage } from '../pages/Home';
+import { ShopPage } from '../pages/Shop';
 
 export const router = createBrowserRouter([
   {
@@ -19,7 +20,11 @@ export const router = createBrowserRouter([
             index: true,
             element: <HomePage />,
           },
-          // Future customer pages (Shop, Product, Cart, etc.) go here
+          {
+            path: 'shop',
+            element: <ShopPage />,
+          },
+          // Future customer pages (Product, Cart, etc.) go here
         ],
       },
 

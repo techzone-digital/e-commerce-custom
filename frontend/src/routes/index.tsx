@@ -1,19 +1,51 @@
 import { createBrowserRouter } from 'react-router-dom';
 import App from '../App';
+import { Signup, Login } from '../pages/Auth';
+import { AdminLogin } from '../features/admin/auth/pages/AdminLogin';
+import { AdminSignup } from '../features/admin/auth/pages/AdminSignup';
+import { CustomerLayout } from '../layouts/CustomerLayout';
+import { HomePage } from '../pages/Home';
+import { ShopPage } from '../pages/Shop';
 
-// Application route definitions placeholder
 export const router = createBrowserRouter([
   {
     path: '/',
     element: <App />,
     children: [
+      // ── Customer-facing routes ──────────────────────────────────────────
       {
-        index: true,
-        element: (
-          <div className="flex min-h-screen items-center justify-center bg-gray-50 text-gray-800">
-            <h1 className="text-2xl font-semibold">Jewellery E-Commerce Storefront</h1>
-          </div>
-        ),
+        element: <CustomerLayout />,
+        children: [
+          {
+            index: true,
+            element: <HomePage />,
+          },
+          {
+            path: 'shop',
+            element: <ShopPage />,
+          },
+          // Future customer pages (Product, Cart, etc.) go here
+        ],
+      },
+
+      // ── Customer auth routes ────────────────────────────────────────────
+      {
+        path: 'signup',
+        element: <Signup />,
+      },
+      {
+        path: 'login',
+        element: <Login />,
+      },
+
+      // ── Admin auth routes ───────────────────────────────────────────────
+      {
+        path: 'admin/login',
+        element: <AdminLogin />,
+      },
+      {
+        path: 'admin/signup',
+        element: <AdminSignup />,
       },
     ],
   },

@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
-import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { ThemeToggle, GoogleLoginButton } from '../../components/common';
 import { loginValidationSchema } from './login.validation';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { loginUser, clearAuthError, clearAuthSuccess } from '@/features/auth/slices/authSlice';
 
 interface LoginFormValues {
   email: string;
@@ -27,6 +29,19 @@ const inputError  = 'border-red-500/70 focus:border-red-500';
 export const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const { isLoading, error, successMessage } = useAppSelector((state) => state.auth);
+
+  useEffect(() => {
+    dispatch(clearAuthError());
+    dispatch(clearAuthSuccess());
+    return () => {
+      dispatch(clearAuthError());
+      dispatch(clearAuthSuccess());
+    };
+  }, [dispatch]);
+
   const formik = useFormik<LoginFormValues>({
     initialValues: {
       email: '',
@@ -34,9 +49,20 @@ export const Login: React.FC = () => {
       rememberMe: false,
     },
     validationSchema: loginValidationSchema,
-    onSubmit: (values) => {
-      // UI-only: existing client logic preserved
-      console.log('Login form submitted:', values);
+    onSubmit: async (values) => {
+      // Send only email and password to backend, no rememberMe or role
+      const resultAction = await dispatch(
+        loginUser({
+          email: values.email.trim(),
+          password: values.password,
+        })
+      );
+
+      if (loginUser.fulfilled.match(resultAction)) {
+        setTimeout(() => {
+          navigate('/');
+        }, 1000);
+      }
     },
   });
 
@@ -124,6 +150,27 @@ export const Login: React.FC = () => {
                 Enter your credentials to continue your jewellery journey.
               </p>
             </div>
+
+            {/* Global API Feedback Messages */}
+            {error && (
+              <div
+                role="alert"
+                className="mb-6 p-3.5 bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 text-xs flex items-start gap-2.5"
+              >
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span className="leading-relaxed">{error}</span>
+              </div>
+            )}
+
+            {successMessage && (
+              <div
+                role="status"
+                className="mb-6 p-3.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs flex items-start gap-2.5"
+              >
+                <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+                <span className="leading-relaxed">{successMessage}</span>
+              </div>
+            )}
 
             {/* Form */}
             <form onSubmit={formik.handleSubmit} noValidate className="space-y-7">
@@ -219,10 +266,10 @@ export const Login: React.FC = () => {
               <div className="pt-2">
                 <button
                   type="submit"
-                  disabled={formik.isSubmitting}
-                  className="w-full py-3.5 px-6 bg-primary hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed text-surface text-[11px] font-sans font-medium tracking-[0.2em] uppercase transition-colors duration-200 rounded-none shadow-none"
+                  disabled={formik.isSubmitting || isLoading}
+                  className="w-full py-3.5 px-6 bg-primary hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed text-surface text-[11px] font-sans font-medium tracking-[0.2em] uppercase transition-colors duration-200 rounded-none shadow-none flex items-center justify-center gap-2"
                 >
-                  {formik.isSubmitting ? 'Signing In…' : 'Sign In'}
+                  {isLoading ? 'Signing In…' : 'Sign In'}
                 </button>
               </div>
             </form>

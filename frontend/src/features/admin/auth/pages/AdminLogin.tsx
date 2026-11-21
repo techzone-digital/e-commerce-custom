@@ -249,16 +249,11 @@ export const AdminLogin: React.FC = () => {
 
             {/* Footer link */}
             <div className="mt-10 pt-7 border-t border-border">
-              <p className="text-[11px] font-sans text-text-secondary">
-                Need an admin account?{' '}
-                <Link
-                  to="/admin/signup"
-                  className="text-primary hover:text-primary-hover underline underline-offset-4 decoration-primary/40 hover:decoration-primary transition-colors duration-200"
-                >
-                  Request access
-                </Link>
+              <p className="text-[11px] font-sans text-text-secondary leading-relaxed">
+                Administrator access is restricted. Accounts must be provisioned by a system administrator.
               </p>
             </div>
+
           </div>
         </div>
 

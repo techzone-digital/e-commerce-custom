@@ -1,11 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserRound, LogIn, UserPlus, LogOut, Package, User } from 'lucide-react';
-
-export interface UserProfile {
-  name?: string;
-  email?: string;
-}
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { logout } from '@/features/auth/slices/authSlice';
 
 interface AccountDropdownProps {
   onItemClick?: () => void;
@@ -19,23 +16,10 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
-  // Check auth state from localStorage token & user info
-  const [user, setUser] = useState<UserProfile | null>(() => {
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) return null;
-      const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        return JSON.parse(storedUser);
-      }
-      return { name: 'Customer' };
-    } catch {
-      return null;
-    }
-  });
-
-  const isAuthenticated = Boolean(user);
+  // Read authenticated user directly from Redux store
+  const { user, isAuthenticated } = useAppSelector((state) => state.auth);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -65,13 +49,7 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = ({
   }, [isOpen]);
 
   const handleLogout = () => {
-    try {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-    } catch {
-      // ignore
-    }
-    setUser(null);
+    dispatch(logout());
     setIsOpen(false);
     onItemClick?.();
     navigate('/');
@@ -81,6 +59,7 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = ({
     setIsOpen(false);
     onItemClick?.();
   };
+
 
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>

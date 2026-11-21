@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation, Location } from 'react-router-dom';
 import { useFormik } from 'formik';
-import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { ThemeToggle, GoogleLoginButton } from '../../../../components/common';
 import { adminLoginValidationSchema } from '../validation/adminLogin.validation';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import {
+  loginAdmin,
+  clearAdminAuthError,
+  clearAdminAuthSuccess,
+} from '../../slices/adminAuthSlice';
 
 interface AdminLoginFormValues {
   email: string;
@@ -26,13 +32,52 @@ const inputError  = 'border-red-500/70 focus:border-red-500';
 
 export const AdminLogin: React.FC = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const {
+    isLoading,
+    error,
+    successMessage,
+    isAdminAuthenticated,
+    isInitialized,
+  } = useAppSelector((state) => state.adminAuth);
+
+  // Redirect if already authenticated as admin
+  useEffect(() => {
+    if (isInitialized && isAdminAuthenticated) {
+      const from = (location.state as { from?: Location })?.from?.pathname || '/admin';
+      navigate(from, { replace: true });
+    }
+  }, [isInitialized, isAdminAuthenticated, navigate, location.state]);
+
+  // Clear errors and success messages on unmount or mount
+  useEffect(() => {
+    dispatch(clearAdminAuthError());
+    dispatch(clearAdminAuthSuccess());
+    return () => {
+      dispatch(clearAdminAuthError());
+      dispatch(clearAdminAuthSuccess());
+    };
+  }, [dispatch]);
 
   const formik = useFormik<AdminLoginFormValues>({
     initialValues: { email: '', password: '', rememberMe: false },
     validationSchema: adminLoginValidationSchema,
-    onSubmit: (values) => {
-      // UI-only: no backend authentication in this task
-      console.log('Admin login form submitted:', values);
+    onSubmit: async (values) => {
+      dispatch(clearAdminAuthError());
+      const resultAction = await dispatch(
+        loginAdmin({
+          email: values.email.trim(),
+          password: values.password,
+        })
+      );
+
+      if (loginAdmin.fulfilled.match(resultAction)) {
+        const from = (location.state as { from?: Location })?.from?.pathname || '/admin';
+        navigate(from, { replace: true });
+      }
     },
   });
 
@@ -120,6 +165,27 @@ export const AdminLogin: React.FC = () => {
                 Enter your credentials to access the administration panel.
               </p>
             </div>
+
+            {/* Global feedback messages */}
+            {error && (
+              <div
+                role="alert"
+                className="mb-6 p-3.5 bg-red-500/10 border-l-2 border-red-500 text-red-600 dark:text-red-400 text-xs font-sans flex items-start gap-2.5"
+              >
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span className="leading-relaxed">{error}</span>
+              </div>
+            )}
+
+            {successMessage && (
+              <div
+                role="status"
+                className="mb-6 p-3.5 bg-green-500/10 border-l-2 border-green-500 text-green-700 dark:text-green-400 text-xs font-sans flex items-start gap-2.5"
+              >
+                <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+                <span className="leading-relaxed">{successMessage}</span>
+              </div>
+            )}
 
             {/* Form */}
             <form onSubmit={formik.handleSubmit} noValidate className="space-y-7">
@@ -217,10 +283,10 @@ export const AdminLogin: React.FC = () => {
               <div className="pt-2">
                 <button
                   type="submit"
-                  disabled={formik.isSubmitting}
+                  disabled={formik.isSubmitting || isLoading}
                   className="w-full py-3.5 px-6 bg-primary hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed text-surface text-[11px] font-sans font-medium tracking-[0.2em] uppercase transition-colors duration-200 rounded-none shadow-none"
                 >
-                  {formik.isSubmitting ? 'Signing In…' : 'Sign In'}
+                  {formik.isSubmitting || isLoading ? 'Signing In…' : 'Sign In'}
                 </button>
               </div>
             </form>
@@ -249,16 +315,11 @@ export const AdminLogin: React.FC = () => {
 
             {/* Footer link */}
             <div className="mt-10 pt-7 border-t border-border">
-              <p className="text-[11px] font-sans text-text-secondary">
-                Need an admin account?{' '}
-                <Link
-                  to="/admin/signup"
-                  className="text-primary hover:text-primary-hover underline underline-offset-4 decoration-primary/40 hover:decoration-primary transition-colors duration-200"
-                >
-                  Request access
-                </Link>
+              <p className="text-[11px] font-sans text-text-secondary leading-relaxed">
+                Administrator access is restricted. Accounts must be provisioned by a system administrator.
               </p>
             </div>
+
           </div>
         </div>
 

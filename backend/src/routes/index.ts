@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { authRoutes, adminAuthRoutes } from '../modules/auth/auth.routes.js';
+import { adminUserRoutes } from '../modules/users/users.routes.js';
 
 export const apiRouter = Router();
 
@@ -8,5 +9,7 @@ apiRouter.use('/auth', authRoutes);
 
 // Admin routes -> /api/v1/admin/*
 apiRouter.use('/admin', adminAuthRoutes);
+apiRouter.use('/admin/users', adminUserRoutes);
+
 
 

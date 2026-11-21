@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import {
   Search,
   Heart,
@@ -7,10 +7,15 @@ import {
   Menu,
   X,
   Gem,
+  User,
+  Package,
+  LogOut,
 } from 'lucide-react';
 import { ThemeToggle } from '../common/ThemeToggle';
 import { AnnouncementBar } from './AnnouncementBar';
 import { AccountDropdown } from './AccountDropdown';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { logout } from '@/features/auth/slices/authSlice';
 
 const NAV_LINKS = [
   { label: 'Home', to: '/' },
@@ -22,6 +27,9 @@ const NAV_LINKS = [
 export const CustomerHeader: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { user, isAuthenticated } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -44,6 +52,12 @@ export const CustomerHeader: React.FC = () => {
   }, [isMobileMenuOpen]);
 
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
+
+  const handleMobileLogout = () => {
+    dispatch(logout());
+    closeMobileMenu();
+    navigate('/');
+  };
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     `text-xs uppercase tracking-widest font-medium transition-colors duration-200 py-1 relative after:absolute after:bottom-0 after:left-0 after:h-px after:bg-primary after:transition-all after:duration-300 ${
@@ -249,21 +263,72 @@ export const CustomerHeader: React.FC = () => {
           </div>
 
           {/* Auth Actions in Drawer Footer */}
-          <div className="p-5 border-t border-border bg-surface/50 space-y-2.5">
-            <Link
-              to="/login"
-              onClick={closeMobileMenu}
-              className="block w-full text-center py-2.5 px-4 border border-border rounded-full text-xs uppercase tracking-wider font-medium text-text-secondary hover:text-primary hover:border-primary transition-colors duration-200"
-            >
-              Login
-            </Link>
-            <Link
-              to="/signup"
-              onClick={closeMobileMenu}
-              className="block w-full text-center py-2.5 px-4 bg-primary hover:bg-primary-hover text-surface rounded-full text-xs uppercase tracking-wider font-medium transition-colors duration-200 shadow-sm"
-            >
-              Sign Up
-            </Link>
+          <div className="p-5 border-t border-border bg-surface/50">
+            {isAuthenticated ? (
+              <div className="space-y-3">
+                <div className="px-1 pb-1 border-b border-border/60">
+                  <p className="text-[10px] uppercase tracking-widest text-primary font-mono font-medium">
+                    Signed in as
+                  </p>
+                  <p className="font-serif text-sm font-normal text-text-main truncate mt-0.5">
+                    {user?.name || user?.email || 'Valued Customer'}
+                  </p>
+                  {user?.email && user?.name && (
+                    <p className="text-[11px] text-text-secondary truncate mt-0.5">
+                      {user.email}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-1">
+                  <Link
+                    to="/account"
+                    onClick={closeMobileMenu}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs uppercase tracking-wider font-medium text-text-secondary hover:text-text-main hover:bg-bg/60 transition-colors"
+                  >
+                    <User className="w-4 h-4 text-primary" strokeWidth={1.75} />
+                    <span>My Account</span>
+                  </Link>
+
+                  <Link
+                    to="/orders"
+                    onClick={closeMobileMenu}
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs uppercase tracking-wider font-medium text-text-secondary hover:text-text-main hover:bg-bg/60 transition-colors"
+                  >
+                    <Package className="w-4 h-4 text-primary" strokeWidth={1.75} />
+                    <span>My Orders</span>
+                  </Link>
+                </div>
+
+                <div className="pt-2 border-t border-border/60">
+                  <button
+                    type="button"
+                    onClick={handleMobileLogout}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs uppercase tracking-wider font-medium text-red-600 hover:bg-red-500/10 transition-colors text-left"
+                  >
+                    <LogOut className="w-4 h-4" strokeWidth={1.75} />
+                    <span>Logout</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2.5">
+                <Link
+                  to="/login"
+                  onClick={closeMobileMenu}
+                  className="block w-full text-center py-2.5 px-4 border border-border rounded-full text-xs uppercase tracking-wider font-medium text-text-secondary hover:text-primary hover:border-primary transition-colors duration-200"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  onClick={closeMobileMenu}
+                  className="block w-full text-center py-2.5 px-4 bg-primary hover:bg-primary-hover text-surface rounded-full text-xs uppercase tracking-wider font-medium transition-colors duration-200 shadow-sm"
+                >
+                  Sign Up
+                </Link>
+              </div>
+            )}
           </div>
         </nav>
       </div>

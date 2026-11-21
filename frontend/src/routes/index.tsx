@@ -2,10 +2,12 @@ import { createBrowserRouter } from 'react-router-dom';
 import App from '../App';
 import { Signup, Login } from '../pages/Auth';
 import { AdminLogin } from '../features/admin/auth/pages/AdminLogin';
-import { AdminSignup } from '../features/admin/auth/pages/AdminSignup';
+import { AdminPlaceholderDashboard } from '../pages/Admin/AdminPlaceholderDashboard';
 import { CustomerLayout } from '../layouts/CustomerLayout';
 import { HomePage } from '../pages/Home';
 import { ShopPage } from '../pages/Shop';
+import { ProtectedRoute } from './ProtectedRoute';
+
 
 export const router = createBrowserRouter([
   {
@@ -24,7 +26,29 @@ export const router = createBrowserRouter([
             path: 'shop',
             element: <ShopPage />,
           },
-          // Future customer pages (Product, Cart, etc.) go here
+          // Protected customer account and orders routes
+          {
+            path: 'orders',
+            element: (
+              <ProtectedRoute allowedRoles={['customer']}>
+                <div className="max-w-4xl mx-auto px-4 py-16 text-center">
+                  <h1 className="font-serif text-3xl mb-4 italic">My Orders</h1>
+                  <p className="text-sm text-text-secondary">Your order history will appear here.</p>
+                </div>
+              </ProtectedRoute>
+            ),
+          },
+          {
+            path: 'account',
+            element: (
+              <ProtectedRoute allowedRoles={['customer']}>
+                <div className="max-w-4xl mx-auto px-4 py-16 text-center">
+                  <h1 className="font-serif text-3xl mb-4 italic">My Account</h1>
+                  <p className="text-sm text-text-secondary">Your account details and preferences.</p>
+                </div>
+              </ProtectedRoute>
+            ),
+          },
         ],
       },
 
@@ -38,15 +62,20 @@ export const router = createBrowserRouter([
         element: <Login />,
       },
 
-      // ── Admin auth routes ───────────────────────────────────────────────
+      // ── Admin routes ───────────────────────────────────────────────────
       {
         path: 'admin/login',
         element: <AdminLogin />,
       },
       {
-        path: 'admin/signup',
-        element: <AdminSignup />,
+        path: 'admin',
+        element: (
+          <ProtectedRoute allowedRoles={['admin', 'superadmin']} authType="admin" redirectPath="/admin/login">
+            <AdminPlaceholderDashboard />
+          </ProtectedRoute>
+        ),
       },
     ],
   },
 ]);
+

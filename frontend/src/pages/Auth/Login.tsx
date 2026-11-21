@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation, Location } from 'react-router-dom';
+
 import { useFormik } from 'formik';
 import { ArrowLeft, Eye, EyeOff, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { ThemeToggle, GoogleLoginButton } from '../../components/common';
@@ -31,7 +32,18 @@ export const Login: React.FC = () => {
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { isLoading, error, successMessage } = useAppSelector((state) => state.auth);
+  const location = useLocation();
+  const { isLoading, error, successMessage, isAuthenticated, isInitialized } = useAppSelector(
+    (state) => state.auth
+  );
+
+  // Redirect if already logged in as customer
+  useEffect(() => {
+    if (isInitialized && isAuthenticated) {
+      const from = (location.state as { from?: Location })?.from?.pathname || '/';
+      navigate(from, { replace: true });
+    }
+  }, [isInitialized, isAuthenticated, navigate, location.state]);
 
   useEffect(() => {
     dispatch(clearAuthError());
@@ -60,11 +72,13 @@ export const Login: React.FC = () => {
 
       if (loginUser.fulfilled.match(resultAction)) {
         setTimeout(() => {
-          navigate('/');
+          const from = (location.state as { from?: Location })?.from?.pathname || '/';
+          navigate(from, { replace: true });
         }, 1000);
       }
     },
   });
+
 
   return (
     <div className="min-h-screen flex bg-bg text-text-main transition-colors duration-200">

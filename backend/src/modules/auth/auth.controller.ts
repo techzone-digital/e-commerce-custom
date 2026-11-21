@@ -51,4 +51,21 @@ export const loginAdmin = asyncHandler(
   }
 );
 
+/**
+ * Handle get current authenticated user profile.
+ * Route: GET /api/v1/auth/me
+ */
+export const getCurrentUser = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    res.status(200).json({
+      success: true,
+      message: 'Authenticated user fetched successfully.',
+      data: {
+        user: req.user,
+      },
+    });
+  }
+);
+
+
 

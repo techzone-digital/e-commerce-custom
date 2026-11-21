@@ -22,4 +22,7 @@ export interface IUserMethods {
 
 export interface IUserDocument extends IUser, IUserMethods, Document {}
 
+export type { CreateAdminInput } from './users.validation.js';
+
+
 

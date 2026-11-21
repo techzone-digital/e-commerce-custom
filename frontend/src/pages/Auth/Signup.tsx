@@ -34,7 +34,16 @@ export const Signup: React.FC = () => {
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { isLoading, error, successMessage } = useAppSelector((state) => state.auth);
+  const { isLoading, error, successMessage, isAuthenticated, isInitialized } = useAppSelector(
+    (state) => state.auth
+  );
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isInitialized && isAuthenticated) {
+      navigate('/', { replace: true });
+    }
+  }, [isInitialized, isAuthenticated, navigate]);
 
   useEffect(() => {
     // Clear any previous auth messages when component mounts or unmounts
@@ -45,6 +54,7 @@ export const Signup: React.FC = () => {
       dispatch(clearAuthSuccess());
     };
   }, [dispatch]);
+
 
   const formik = useFormik<SignupFormValues>({
     initialValues: {

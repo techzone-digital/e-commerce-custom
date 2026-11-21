@@ -12,7 +12,13 @@ export const apiClient: AxiosInstance = axios.create({
 // Request interceptor for attaching auth token
 apiClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    // If the request is for admin endpoints, prioritize adminToken, otherwise check role/context
+    const isAdminRequest = config.url?.startsWith('/admin');
+    const adminToken = localStorage.getItem('adminToken');
+    const customerToken = localStorage.getItem('token');
+
+    const token = isAdminRequest ? adminToken || customerToken : customerToken || adminToken;
+
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }

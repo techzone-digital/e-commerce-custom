@@ -6,23 +6,37 @@ export interface ProtectedRouteProps {
   children: React.ReactNode;
   allowedRoles?: string[];
   redirectPath?: string;
+  authType?: 'customer' | 'admin';
 }
 
 /**
  * Reusable ProtectedRoute Component
  *
- * - Checks authentication state and role from Redux.
+ * - Checks authentication state and role from Redux (supporting both customer and admin auth state).
  * - Displays a loading indicator while session initialization is in progress.
- * - Redirects unauthenticated users to `/login` preserving target location in `state.from`.
- * - Redirects users with insufficient role to `/` (or safe fallback) to prevent unauthorized access.
+ * - Redirects unauthenticated users to redirectPath (`/login` or `/admin/login`).
+ * - Redirects users with insufficient role to prevent unauthorized access.
  */
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
   allowedRoles,
-  redirectPath = '/login',
+  redirectPath,
+  authType = 'customer',
 }) => {
-  const { isAuthenticated, isInitialized, user } = useAppSelector((state) => state.auth);
+  const customerAuth = useAppSelector((state) => state.auth);
+  const adminAuth = useAppSelector((state) => state.adminAuth);
   const location = useLocation();
+
+  const isCurrentAuthAdmin = authType === 'admin';
+  const isInitialized = isCurrentAuthAdmin
+    ? adminAuth.isInitialized
+    : customerAuth.isInitialized;
+  const isAuthenticated = isCurrentAuthAdmin
+    ? adminAuth.isAdminAuthenticated
+    : customerAuth.isAuthenticated;
+  const user = isCurrentAuthAdmin ? adminAuth.admin : customerAuth.user;
+  const defaultRedirectPath = isCurrentAuthAdmin ? '/admin/login' : '/login';
+  const effectiveRedirectPath = redirectPath || defaultRedirectPath;
 
   // Wait until auth initialization check completes before rendering or redirecting
   if (!isInitialized) {
@@ -40,12 +54,17 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // Not authenticated -> redirect to login with saved return path
   if (!isAuthenticated || !user) {
-    return <Navigate to={redirectPath} state={{ from: location }} replace />;
+    return <Navigate to={effectiveRedirectPath} state={{ from: location }} replace />;
   }
 
   // Check role authorization
   if (allowedRoles && allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
-    // If user is a customer trying to access an admin area or vice-versa
+    // If unauthorized for this route:
+    // If admin route requested by non-admin, redirect to admin login
+    if (isCurrentAuthAdmin) {
+      return <Navigate to="/admin/login" replace />;
+    }
+    // If customer route requested by non-customer, redirect to home
     return <Navigate to="/" replace />;
   }
 

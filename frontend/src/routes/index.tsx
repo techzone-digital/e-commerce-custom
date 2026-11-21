@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom';
 import App from '../App';
 import { Signup, Login } from '../pages/Auth';
 import { AdminLogin } from '../features/admin/auth/pages/AdminLogin';
+import { AdminPlaceholderDashboard } from '../pages/Admin/AdminPlaceholderDashboard';
 import { CustomerLayout } from '../layouts/CustomerLayout';
 import { HomePage } from '../pages/Home';
 import { ShopPage } from '../pages/Shop';
@@ -61,10 +62,18 @@ export const router = createBrowserRouter([
         element: <Login />,
       },
 
-      // ── Admin auth routes ───────────────────────────────────────────────
+      // ── Admin routes ───────────────────────────────────────────────────
       {
         path: 'admin/login',
         element: <AdminLogin />,
+      },
+      {
+        path: 'admin',
+        element: (
+          <ProtectedRoute allowedRoles={['admin']} authType="admin" redirectPath="/admin/login">
+            <AdminPlaceholderDashboard />
+          </ProtectedRoute>
+        ),
       },
     ],
   },

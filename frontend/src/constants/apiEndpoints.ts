@@ -6,6 +6,9 @@ export const API_ENDPOINTS = {
     LOGOUT: '/auth/logout',
     ME: '/auth/me',
   },
+  ADMIN: {
+    LOGIN: '/admin/login',
+  },
   PRODUCTS: {
     BASE: '/products',
     DETAILS: (id: string) => `/products/${id}`,

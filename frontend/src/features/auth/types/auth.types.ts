@@ -19,6 +19,11 @@ export interface SignupRequest {
   confirmPassword: string;
 }
 
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
 export interface AuthResponseData {
   user: User;
   accessToken: string;

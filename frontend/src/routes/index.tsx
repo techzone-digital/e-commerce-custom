@@ -70,7 +70,7 @@ export const router = createBrowserRouter([
       {
         path: 'admin',
         element: (
-          <ProtectedRoute allowedRoles={['admin']} authType="admin" redirectPath="/admin/login">
+          <ProtectedRoute allowedRoles={['admin', 'superadmin']} authType="admin" redirectPath="/admin/login">
             <AdminPlaceholderDashboard />
           </ProtectedRoute>
         ),

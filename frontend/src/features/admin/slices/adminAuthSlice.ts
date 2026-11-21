@@ -43,8 +43,8 @@ export const restoreAdminAuth = createAsyncThunk<
       });
     }
 
-    // Role safety check: user MUST have role 'admin'
-    if (response.data.user.role !== 'admin') {
+    // Role safety check: user MUST have role 'admin' or 'superadmin'
+    if (response.data.user.role !== 'admin' && response.data.user.role !== 'superadmin') {
       return rejectWithValue({
         message: 'Unauthorized: Administrator access required',
         isAuthError: true,
@@ -83,8 +83,8 @@ export const loginAdmin = createAsyncThunk<
       return rejectWithValue(response.message || 'Admin login failed');
     }
 
-    // Verify role safety
-    if (response.data.user.role !== 'admin') {
+    // Verify role safety: allow admin or superadmin
+    if (response.data.user.role !== 'admin' && response.data.user.role !== 'superadmin') {
       return rejectWithValue('Access denied: Administrator privileges required.');
     }
 

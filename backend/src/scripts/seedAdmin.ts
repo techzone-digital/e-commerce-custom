@@ -160,12 +160,12 @@ async function seedAdmin(): Promise<void> {
   console.log('[Seed:Admin] Connected to MongoDB successfully.');
 
   try {
-    // Check if an admin or any user with this email already exists
+    // Check if an account with this email already exists
     const existingUser = await User.findOne({ email: normalizedEmail });
 
     if (existingUser) {
-      if (existingUser.role === ROLES.ADMIN) {
-        console.log(`[Seed:Admin] An administrator account with email "${normalizedEmail}" already exists.`);
+      if (existingUser.role === ROLES.SUPERADMIN) {
+        console.log(`[Seed:Admin] A super administrator account with email "${normalizedEmail}" already exists.`);
         console.log('[Seed:Admin] No changes made. Seed process completed safely without duplicating accounts.');
       } else {
         console.warn(
@@ -176,31 +176,33 @@ async function seedAdmin(): Promise<void> {
       return;
     }
 
-    // Check if another admin already exists in the system (prevent duplicate/unintended multiple admins)
-    const existingAdminCount = await User.countDocuments({ role: ROLES.ADMIN });
-    if (existingAdminCount > 0) {
-      console.log(`[Seed:Admin] Notice: ${existingAdminCount} administrator account(s) already exist in the database.`);
+    // Check if a superadmin already exists in the system (prevent duplicate initial superadmin creation)
+    const existingSuperAdmin = await User.findOne({ role: ROLES.SUPERADMIN });
+    if (existingSuperAdmin) {
+      console.log(`[Seed:Admin] A super administrator account already exists (${existingSuperAdmin.email}).`);
+      console.log('[Seed:Admin] Initial superadmin seed allows only one superadmin. Additional admins should be created via the Super Admin API.');
+      return;
     }
 
-    // Create admin user using the Mongoose model
+    // Create superadmin user using the Mongoose model
     // Relies on User model pre-save hook for password hashing (prevents double-hashing)
-    const adminUser = await User.create({
+    const superAdminUser = await User.create({
       name: credentials.name.trim(),
       email: normalizedEmail,
       phone: credentials.phone || undefined,
       password: credentials.password,
-      role: ROLES.ADMIN,
+      role: ROLES.SUPERADMIN,
       status: 'active',
       isEmailVerified: true,
     });
 
-    console.log('[Seed:Admin] Administrator account successfully created!');
-    console.log(` - Admin ID: ${adminUser._id}`);
-    console.log(` - Name: ${adminUser.name}`);
-    console.log(` - Email: ${adminUser.email}`);
-    console.log(` - Role: ${adminUser.role}`);
-    console.log(` - Status: ${adminUser.status}`);
-    console.log(` - Email Verified: ${adminUser.isEmailVerified}`);
+    console.log('[Seed:Admin] Super Administrator account successfully created!');
+    console.log(` - Admin ID: ${superAdminUser._id}`);
+    console.log(` - Name: ${superAdminUser.name}`);
+    console.log(` - Email: ${superAdminUser.email}`);
+    console.log(` - Role: ${superAdminUser.role}`);
+    console.log(` - Status: ${superAdminUser.status}`);
+    console.log(` - Email Verified: ${superAdminUser.isEmailVerified}`);
   } finally {
     console.log('[Seed:Admin] Disconnecting from database...');
     await mongoose.disconnect();

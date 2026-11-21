@@ -108,11 +108,11 @@ export const loginCustomer = async (
 };
 
 /**
- * Authenticate admin login.
+ * Authenticate admin or superadmin login.
  * - Queries using normalized email
  * - Explicitly selects password (+password)
  * - Verifies password using user.comparePassword()
- * - Strictly verifies role === ROLES.ADMIN
+ * - Strictly verifies role is ADMIN or SUPERADMIN
  * - Verifies account is active
  * - Returns safe user and JWT access token
  */
@@ -132,7 +132,7 @@ export const loginAdmin = async (
     throw new AppError('Invalid email or password.', 401);
   }
 
-  if (user.role !== ROLES.ADMIN) {
+  if (user.role !== ROLES.ADMIN && user.role !== ROLES.SUPERADMIN) {
     throw new AppError('Access denied: Administrator privileges required.', 403);
   }
 

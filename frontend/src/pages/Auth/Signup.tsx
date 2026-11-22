@@ -79,7 +79,9 @@ export const Signup: React.FC = () => {
 
       if (signupUser.fulfilled.match(resultAction)) {
         setTimeout(() => {
-          navigate('/');
+          navigate('/verify-otp', {
+            state: { email: values.email.trim() },
+          });
         }, 1200);
       }
     },

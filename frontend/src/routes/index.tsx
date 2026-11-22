@@ -1,6 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom';
 import App from '../App';
-import { Signup, Login } from '../pages/Auth';
+import { Signup, Login, VerifyOtp } from '../pages/Auth';
 import { AdminLogin } from '../features/admin/auth/pages/AdminLogin';
 import { AdminPlaceholderDashboard } from '../pages/Admin/AdminPlaceholderDashboard';
 import { CustomerLayout } from '../layouts/CustomerLayout';
@@ -56,6 +56,10 @@ export const router = createBrowserRouter([
       {
         path: 'signup',
         element: <Signup />,
+      },
+      {
+        path: 'verify-otp',
+        element: <VerifyOtp />,
       },
       {
         path: 'login',

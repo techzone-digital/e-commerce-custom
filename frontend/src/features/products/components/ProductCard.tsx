@@ -18,6 +18,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const [internalWishlist, setInternalWishlist] = useState<boolean>(false);
   const [imgError, setImgError] = useState<boolean>(false);
+  const [isHovered, setIsHovered] = useState<boolean>(false);
 
   const isFavorited =
     externalWishlisted !== undefined ? externalWishlisted : internalWishlist;
@@ -41,86 +42,110 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   };
 
   return (
-    <article className="group bg-surface border border-border flex flex-col h-full transition-all duration-300 hover:border-primary/50 hover:shadow-md">
-      {/* ── Visual Media Container ──────────────────────────────────── */}
-      <div className="relative aspect-square w-full overflow-hidden bg-bg/50">
+    <article
+      className="group bg-surface flex flex-col h-full transition-all duration-300 hover:shadow-[0_4px_24px_rgba(0,0,0,0.07)]"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Image Container */}
+      <div className="relative aspect-[4/5] w-full overflow-hidden bg-bg/60 flex-shrink-0">
         {imgError ? (
-          <div className="w-full h-full flex flex-col items-center justify-center bg-bg text-text-secondary/50 text-xs font-sans p-4 text-center">
-            <span>Image currently unavailable</span>
+          <div className="w-full h-full flex flex-col items-center justify-center bg-bg text-text-secondary/40 text-[11px] font-sans tracking-wider uppercase p-4 text-center gap-2">
+            <span className="w-8 h-px bg-border/60" />
+            <span>Image unavailable</span>
           </div>
         ) : (
           <img
             src={product.image}
             alt={product.name}
             onError={() => setImgError(true)}
-            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
             loading="lazy"
             decoding="async"
           />
         )}
 
-        {/* Top-Left: Availability status badge */}
-        <div className="absolute top-2.5 left-2.5 z-10">
+        {/* Soft overlay on hover */}
+        <div
+          className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+          aria-hidden="true"
+        />
+
+        {/* Top badges row */}
+        <div className="absolute top-3 left-3 right-3 flex items-start justify-between gap-2 z-10">
+          {/* Availability badge */}
           <AvailabilityBadge availability={product.availability} />
-        </div>
 
-        {/* Top-Right: Wishlist Button */}
-        <button
-          type="button"
-          onClick={handleHeartClick}
-          aria-label={isFavorited ? 'Remove from wishlist' : 'Add to wishlist'}
-          className={`absolute top-2.5 right-2.5 z-10 w-8 h-8 sm:w-9 sm:h-9 border flex items-center justify-center transition-colors duration-200 ${
-            isFavorited
-              ? 'bg-primary border-primary text-surface'
-              : 'bg-surface/85 backdrop-blur-sm border-border text-text-secondary hover:border-primary hover:text-primary'
-          }`}
-        >
-          <Heart
-            className="w-3.5 h-3.5 sm:w-4 sm:h-4 transition-transform active:scale-125"
-            strokeWidth={1.75}
-            fill={isFavorited ? 'currentColor' : 'none'}
-          />
-        </button>
-
-        {/* Desktop Quick View Reveal on Hover & Mobile always-reachable bar */}
-        <div className="absolute inset-x-0 bottom-0 z-10 p-2 sm:p-2.5 bg-gradient-to-t from-black/60 to-transparent sm:bg-none sm:opacity-0 sm:group-hover:opacity-100 sm:translate-y-2 sm:group-hover:translate-y-0 transition-all duration-300">
+          {/* Wishlist button */}
           <button
             type="button"
-            onClick={handleQuickViewClick}
-            className="w-full py-2.5 px-3 bg-surface/95 dark:bg-[#1a1712]/95 hover:bg-primary hover:text-surface text-text-main border border-border hover:border-primary text-[10px] sm:text-[11px] uppercase font-sans font-medium tracking-[0.18em] transition-all duration-200 flex items-center justify-center gap-2 shadow-sm"
+            onClick={handleHeartClick}
+            aria-label={isFavorited ? 'Remove from wishlist' : 'Add to wishlist'}
+            className={`w-8 h-8 flex-shrink-0 flex items-center justify-center transition-all duration-200 shadow-sm ${
+              isFavorited
+                ? 'bg-primary text-white border border-primary'
+                : 'bg-white/90 backdrop-blur-sm text-text-secondary border border-white/60 hover:border-primary/50 hover:text-primary'
+            }`}
           >
-            <Eye className="w-3.5 h-3.5" />
-            <span>Quick View</span>
+            <Heart
+              className="w-3.5 h-3.5 transition-transform active:scale-110"
+              strokeWidth={1.75}
+              fill={isFavorited ? 'currentColor' : 'none'}
+            />
           </button>
+        </div>
+
+        {/* New/Featured badges (bottom-left corner) */}
+        {product.isNew && (
+          <div className="absolute bottom-3 left-3 z-10">
+            <span className="text-[9px] uppercase tracking-[0.2em] font-sans font-medium px-2 py-1 bg-text-main/90 text-bg backdrop-blur-sm">
+              New
+            </span>
+          </div>
+        )}
+
+        {/* Quick View - revealed on hover */}
+        <div
+          className={`absolute inset-x-0 bottom-0 z-10 transition-all duration-300 ${
+            isHovered ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1 sm:opacity-0 sm:translate-y-1'
+          }`}
+        >
+          {/* Always show on mobile (no hover), reveal on desktop hover */}
+          <div className="sm:opacity-0 sm:group-hover:opacity-100 sm:translate-y-0 transition-all duration-300">
+            <button
+              type="button"
+              onClick={handleQuickViewClick}
+              className="w-full py-3 px-4 bg-white/95 dark:bg-surface/95 hover:bg-primary hover:text-white text-text-main text-[10px] uppercase font-sans font-medium tracking-[0.2em] transition-all duration-200 flex items-center justify-center gap-2 backdrop-blur-sm"
+            >
+              <Eye className="w-3.5 h-3.5 flex-shrink-0" />
+              <span>Quick View</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* ── Product Meta & Details ──────────────────────────────────── */}
-      <div className="p-3.5 sm:p-5 flex flex-col flex-1 justify-between gap-3">
-        <div>
-          {/* Category & Material tags */}
-          <div className="flex items-center justify-between gap-2 mb-1.5 text-[10px] uppercase font-sans tracking-[0.2em]">
-            <span className="text-primary font-medium truncate">{product.category}</span>
-            <span className="text-text-secondary/70 flex-shrink-0">{product.material}</span>
-          </div>
+      {/* Product Info */}
+      <div className="p-4 sm:p-5 flex flex-col flex-1 gap-2.5">
+        {/* Category tag */}
+        <span className="text-[9px] uppercase tracking-[0.25em] text-primary/80 font-sans font-medium">
+          {product.category}
+        </span>
 
-          {/* Product Title */}
-          <h3 className="font-serif text-sm sm:text-base md:text-lg text-text-main font-light leading-snug line-clamp-2 transition-colors duration-200 group-hover:text-primary">
-            {product.name}
-          </h3>
-        </div>
+        {/* Product Name */}
+        <h3 className="font-serif text-sm sm:text-base text-text-main font-light leading-snug line-clamp-2 group-hover:text-primary transition-colors duration-200 flex-1">
+          {product.name}
+        </h3>
 
-        {/* Pricing & Subtle Divider */}
-        <div className="pt-2 border-t border-border/60 flex items-baseline justify-between gap-2">
+        {/* Price row */}
+        <div className="flex items-baseline justify-between gap-2 pt-2 border-t border-border/50">
           <p className="font-serif text-base sm:text-lg text-text-main font-normal tracking-wide">
-            ₹ {product.price.toLocaleString('en-IN')}
+            ₹{product.price.toLocaleString('en-IN')}
           </p>
-          <span className="text-[9px] uppercase tracking-wider text-text-secondary/60 font-sans">
-            Tax incl.
+          <span className="text-[9px] uppercase tracking-wider text-text-secondary/50 font-sans flex-shrink-0">
+            Incl. tax
           </span>
         </div>
       </div>
     </article>
   );
 };
-

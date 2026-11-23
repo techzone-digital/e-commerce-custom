@@ -105,25 +105,15 @@ export const ShopPage: React.FC = () => {
   // ── Filter & Sort Execution ───────────────────────────────────────
   const filteredAndSortedProducts = useMemo(() => {
     return MOCK_PRODUCTS.filter((product) => {
-      // 1. Category
       if (selectedCategory !== 'All Jewellery' && product.category !== selectedCategory) {
         return false;
       }
-      // 2. Materials
-      if (
-        selectedMaterials.length > 0 &&
-        !selectedMaterials.includes(product.material)
-      ) {
+      if (selectedMaterials.length > 0 && !selectedMaterials.includes(product.material)) {
         return false;
       }
-      // 3. Availability
-      if (
-        selectedAvailabilities.length > 0 &&
-        !selectedAvailabilities.includes(product.availability)
-      ) {
+      if (selectedAvailabilities.length > 0 && !selectedAvailabilities.includes(product.availability)) {
         return false;
       }
-      // 4. Price
       if (product.price < priceRange[0] || product.price > priceRange[1]) {
         return false;
       }
@@ -144,12 +134,12 @@ export const ShopPage: React.FC = () => {
   }, [selectedCategory, selectedMaterials, selectedAvailabilities, priceRange, sort]);
 
   return (
-    <div className="bg-bg text-text-main min-h-screen transition-colors duration-200">
-      {/* ── Shop Editorial Header ──────────────────────────────────── */}
+    <div className="bg-bg text-text-main min-h-screen">
+      {/* Shop Header */}
       <ShopHeader totalCount={MOCK_PRODUCTS.length} />
 
-      {/* ── Category Navigation Tabs ────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-2">
+      {/* Category Navigation */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <CategoryTabs
           activeCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
@@ -157,34 +147,37 @@ export const ShopPage: React.FC = () => {
         />
       </div>
 
-      {/* ── Main Two-Column Shop Area ──────────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        <div className="lg:grid lg:grid-cols-12 lg:gap-8 items-start">
-          {/* ── Left Sidebar (Desktop 1024px+) ──────────────────────── */}
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
+        <div className="lg:grid lg:grid-cols-12 lg:gap-10 items-start">
+
+          {/* Desktop Sidebar */}
           <aside
-            className="hidden lg:block lg:col-span-3 sticky top-28 bg-surface/70 border border-border p-6 backdrop-blur-xs"
+            className="hidden lg:block lg:col-span-3 sticky top-28"
             aria-label="Product filters"
           >
-            <ProductFilters
-              selectedCategory={selectedCategory}
-              onSelectCategory={setSelectedCategory}
-              selectedMaterials={selectedMaterials}
-              onToggleMaterial={handleToggleMaterial}
-              selectedAvailabilities={selectedAvailabilities}
-              onToggleAvailability={handleToggleAvailability}
-              minPrice={absoluteMinPrice}
-              maxPrice={absoluteMaxPrice}
-              priceRange={priceRange}
-              onPriceChange={setPriceRange}
-              onClearFilters={handleClearAllFilters}
-              hasActiveFilters={hasActiveFilters}
-              productCountPerCategory={productCountPerCategory}
-            />
+            <div className="bg-surface/60 border border-border/50 p-6 backdrop-blur-sm">
+              <ProductFilters
+                selectedCategory={selectedCategory}
+                onSelectCategory={setSelectedCategory}
+                selectedMaterials={selectedMaterials}
+                onToggleMaterial={handleToggleMaterial}
+                selectedAvailabilities={selectedAvailabilities}
+                onToggleAvailability={handleToggleAvailability}
+                minPrice={absoluteMinPrice}
+                maxPrice={absoluteMaxPrice}
+                priceRange={priceRange}
+                onPriceChange={setPriceRange}
+                onClearFilters={handleClearAllFilters}
+                hasActiveFilters={hasActiveFilters}
+                productCountPerCategory={productCountPerCategory}
+              />
+            </div>
           </aside>
 
-          {/* ── Right Content: Toolbar + Product Grid ───────────────── */}
+          {/* Main Product Area */}
           <main className="lg:col-span-9 flex flex-col">
-            {/* Toolbar: Sorting & Mobile Filter trigger */}
+            {/* Sort & Filter Bar */}
             <SortAndFilterBar
               totalCount={MOCK_PRODUCTS.length}
               filteredCount={filteredAndSortedProducts.length}
@@ -196,67 +189,79 @@ export const ShopPage: React.FC = () => {
               onToggleGridCols={setDesktopGridCols}
             />
 
-            {/* Active Filter Pills (Quick Dismiss) */}
+            {/* Active Filter Pills */}
             {hasActiveFilters && (
               <div className="flex flex-wrap items-center gap-2 mb-6">
-                <span className="text-[10px] uppercase font-sans tracking-wider text-text-secondary">
-                  Active:
+                <span className="text-[9px] uppercase tracking-[0.25em] text-text-secondary/70 font-sans">
+                  Filters:
                 </span>
+
                 {selectedCategory !== 'All Jewellery' && (
                   <button
                     type="button"
                     onClick={() => setSelectedCategory('All Jewellery')}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20 transition-colors"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] bg-primary/[0.08] border border-primary/25 text-primary hover:bg-primary/[0.15] transition-colors font-sans tracking-wide"
                   >
                     <span>{selectedCategory}</span>
-                    <span className="text-xs">&times;</span>
+                    <span className="text-xs leading-none opacity-70">×</span>
                   </button>
                 )}
+
                 {selectedMaterials.map((mat) => (
                   <button
                     key={mat}
                     type="button"
                     onClick={() => handleToggleMaterial(mat)}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] bg-surface border border-border text-text-main hover:border-primary transition-colors"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] bg-bg border border-border text-text-secondary hover:border-primary/50 hover:text-text-main transition-colors font-sans tracking-wide"
                   >
                     <span>{mat}</span>
-                    <span className="text-xs">&times;</span>
+                    <span className="text-xs leading-none opacity-70">×</span>
                   </button>
                 ))}
+
                 {selectedAvailabilities.map((avail) => (
                   <button
                     key={avail}
                     type="button"
                     onClick={() => handleToggleAvailability(avail)}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] bg-surface border border-border text-text-main hover:border-primary transition-colors"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] bg-bg border border-border text-text-secondary hover:border-primary/50 hover:text-text-main transition-colors font-sans tracking-wide"
                   >
                     <span>{avail}</span>
-                    <span className="text-xs">&times;</span>
+                    <span className="text-xs leading-none opacity-70">×</span>
                   </button>
                 ))}
-                {priceRange[1] !== absoluteMaxPrice && (
+
+                {(priceRange[1] !== absoluteMaxPrice || priceRange[0] !== absoluteMinPrice) && (
                   <button
                     type="button"
                     onClick={() => setPriceRange([absoluteMinPrice, absoluteMaxPrice])}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] bg-surface border border-border text-text-main hover:border-primary transition-colors"
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 text-[10px] bg-bg border border-border text-text-secondary hover:border-primary/50 hover:text-text-main transition-colors font-sans tracking-wide"
                   >
-                    <span>Under ₹ {priceRange[1].toLocaleString('en-IN')}</span>
-                    <span className="text-xs">&times;</span>
+                    <span>Under ₹{priceRange[1].toLocaleString('en-IN')}</span>
+                    <span className="text-xs leading-none opacity-70">×</span>
                   </button>
                 )}
+
+                <button
+                  type="button"
+                  onClick={handleClearAllFilters}
+                  className="text-[9px] uppercase tracking-[0.2em] text-text-secondary/60 hover:text-primary transition-colors font-sans ml-1"
+                >
+                  Clear all
+                </button>
               </div>
             )}
 
-            {/* Products Grid or Empty State */}
+            {/* Product Grid or Empty State */}
             {filteredAndSortedProducts.length === 0 ? (
               <EmptyProductState onClearFilters={handleClearAllFilters} />
             ) : (
               <div
-                className={`grid grid-cols-2 ${
+                className={`grid grid-cols-2 gap-3 sm:gap-4 lg:gap-5 ${
                   desktopGridCols === 4
                     ? 'sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4'
                     : 'sm:grid-cols-2 md:grid-cols-3'
-                } gap-3 sm:gap-5 lg:gap-6`}
+                }`}
               >
                 {filteredAndSortedProducts.map((product) => (
                   <ProductCard
@@ -273,7 +278,7 @@ export const ShopPage: React.FC = () => {
         </div>
       </div>
 
-      {/* ── Mobile Filter Slide-out Drawer ─────────────────────────── */}
+      {/* Mobile Filter Drawer */}
       <MobileFilterDrawer
         isOpen={isMobileDrawerOpen}
         onClose={() => setIsMobileDrawerOpen(false)}
@@ -293,7 +298,7 @@ export const ShopPage: React.FC = () => {
         productCountPerCategory={productCountPerCategory}
       />
 
-      {/* ── Quick View Product Preview Modal ───────────────────────── */}
+      {/* Quick View Modal */}
       <QuickViewModal
         product={quickViewProduct}
         onClose={() => setQuickViewProduct(null)}
@@ -305,4 +310,3 @@ export const ShopPage: React.FC = () => {
 };
 
 export default ShopPage;
-

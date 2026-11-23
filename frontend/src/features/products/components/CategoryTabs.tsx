@@ -16,9 +16,9 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
   return (
     <nav
       aria-label="Jewellery Categories"
-      className="w-full border-b border-border/80 overflow-x-auto scrollbar-none"
+      className="w-full overflow-x-auto scrollbar-none border-b border-border/60"
     >
-      <div className="flex items-center gap-1 sm:gap-2 min-w-max pb-px">
+      <div className="flex items-stretch min-w-max">
         {CATEGORIES_LIST.map((category) => {
           const isActive = activeCategory === category;
           const count = productCountPerCategory?.[category];
@@ -28,7 +28,7 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
               key={category}
               type="button"
               onClick={() => onSelectCategory(category)}
-              className={`relative px-4 sm:px-5 py-3 text-xs uppercase tracking-[0.18em] font-sans transition-all duration-200 whitespace-nowrap flex items-center gap-2 ${
+              className={`relative group px-5 sm:px-6 py-4 flex items-center gap-2 font-sans text-[11px] uppercase tracking-[0.2em] whitespace-nowrap transition-all duration-200 focus:outline-none ${
                 isActive
                   ? 'text-primary font-semibold'
                   : 'text-text-secondary hover:text-text-main font-normal'
@@ -37,23 +37,23 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
               <span>{category}</span>
               {count !== undefined && (
                 <span
-                  className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                  className={`text-[9px] font-normal tabular-nums transition-colors duration-200 ${
                     isActive
-                      ? 'bg-primary/15 text-primary'
-                      : 'bg-border/60 text-text-secondary/70'
+                      ? 'text-primary'
+                      : 'text-text-secondary/50 group-hover:text-text-secondary'
                   }`}
                 >
-                  {count}
+                  ({count})
                 </span>
               )}
 
-              {/* Active Indicator Line */}
-              {isActive && (
-                <span
-                  className="absolute bottom-0 inset-x-2 h-[2px] bg-primary animate-fadeIn"
-                  aria-hidden="true"
-                />
-              )}
+              {/* Active indicator */}
+              <span
+                className={`absolute bottom-0 left-0 right-0 h-[2px] bg-primary transition-all duration-300 ${
+                  isActive ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-0'
+                } origin-left`}
+                aria-hidden="true"
+              />
             </button>
           );
         })}
@@ -61,4 +61,3 @@ export const CategoryTabs: React.FC<CategoryTabsProps> = ({
     </nav>
   );
 };
-

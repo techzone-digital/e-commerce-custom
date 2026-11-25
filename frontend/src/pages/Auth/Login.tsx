@@ -318,7 +318,7 @@ export const Login: React.FC = () => {
                   to="/signup"
                   className="text-primary hover:text-primary-hover underline underline-offset-4 decoration-primary/40 hover:decoration-primary transition-colors duration-200"
                 >
-                  Create account
+                  Sign Up
                 </Link>
               </p>
             </div>

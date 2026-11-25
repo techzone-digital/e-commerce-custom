@@ -2,6 +2,8 @@ export type {
   CustomerSignupInput,
   CustomerLoginInput,
   AdminLoginInput,
+  VerifyOtpInput,
+  ResendOtpInput,
 } from './auth.validation.js';
 
 export type { JwtUserPayload } from '../../utils/jwt.js';
@@ -23,6 +25,12 @@ export interface AuthResponseData {
   user: SafeUser;
   accessToken: string;
 }
+
+export interface SignupInitiateResponseData {
+  email: string;
+  message: string;
+}
+
 
 
 

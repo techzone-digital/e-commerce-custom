@@ -146,7 +146,7 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = ({
                 Welcome
               </p>
               <p className="text-xs text-[#777166] mt-0.5 font-light">
-                Sign in to manage your orders &amp; wishlist.
+                Login to manage your orders &amp; wishlist.
               </p>
             </div>
 
@@ -168,7 +168,7 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = ({
                 role="menuitem"
               >
                 <UserPlus className="w-3.5 h-3.5 text-primary" strokeWidth={1.75} />
-                <span>Create Account</span>
+                <span>Sign Up</span>
               </Link>
             </div>
           </>

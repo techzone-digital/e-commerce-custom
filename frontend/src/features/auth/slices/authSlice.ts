@@ -1,7 +1,16 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { isAxiosError } from 'axios';
 import { authService } from '../services/auth.service';
-import { SignupRequest, LoginRequest, AuthResponseData, AuthState, User } from '../types/auth.types';
+import {
+  SignupRequest,
+  LoginRequest,
+  VerifyOtpRequest,
+  ResendOtpRequest,
+  SignupInitiateResponse,
+  AuthResponseData,
+  AuthState,
+  User,
+} from '../types/auth.types';
 import { ApiResponse } from '@/types/api.types';
 
 const storedToken = localStorage.getItem('token');
@@ -50,10 +59,8 @@ export const restoreAuth = createAsyncThunk<
   }
 });
 
-
 export const signupUser = createAsyncThunk<
-
-  AuthResponseData,
+  SignupInitiateResponse,
   SignupRequest,
   { rejectValue: string }
 >('auth/signup', async (signupData, { rejectWithValue }) => {
@@ -71,6 +78,47 @@ export const signupUser = createAsyncThunk<
       return rejectWithValue(err.message);
     }
     return rejectWithValue('An unexpected error occurred during signup. Please try again.');
+  }
+});
+
+export const verifyOtp = createAsyncThunk<
+  AuthResponseData,
+  VerifyOtpRequest,
+  { rejectValue: string }
+>('auth/verifyOtp', async (verifyData, { rejectWithValue }) => {
+  try {
+    const response = await authService.verifyOtp(verifyData);
+    if (!response.success || !response.data) {
+      return rejectWithValue(response.message || 'OTP verification failed');
+    }
+    return response.data;
+  } catch (err: unknown) {
+    if (isAxiosError<ApiResponse<unknown>>(err) && err.response?.data?.message) {
+      return rejectWithValue(err.response.data.message);
+    }
+    if (err instanceof Error) {
+      return rejectWithValue(err.message);
+    }
+    return rejectWithValue('Verification failed. Please check the code and try again.');
+  }
+});
+
+export const resendOtp = createAsyncThunk<
+  string,
+  ResendOtpRequest,
+  { rejectValue: string }
+>('auth/resendOtp', async (resendData, { rejectWithValue }) => {
+  try {
+    const response = await authService.resendOtp(resendData);
+    return response.message || 'A new verification code has been sent.';
+  } catch (err: unknown) {
+    if (isAxiosError<ApiResponse<unknown>>(err) && err.response?.data?.message) {
+      return rejectWithValue(err.response.data.message);
+    }
+    if (err instanceof Error) {
+      return rejectWithValue(err.message);
+    }
+    return rejectWithValue('Failed to resend code. Please try again later.');
   }
 });
 
@@ -135,7 +183,6 @@ export const authSlice = createSlice({
       .addCase(restoreAuth.rejected, (state, action) => {
         state.isLoading = false;
         state.isInitialized = true;
-        // Only clear stored credentials when backend returned a definitive auth rejection (401/403 or no token)
         if (action.payload?.isAuthError) {
           state.user = null;
           state.token = null;
@@ -144,37 +191,68 @@ export const authSlice = createSlice({
           localStorage.removeItem('token');
           localStorage.removeItem('user');
         } else {
-          // In case of network error/server offline, keep token in storage, but don't mark as authenticated
           state.user = null;
           state.isAuthenticated = false;
           state.error = action.payload?.message || 'Network error during session restoration';
         }
       })
 
-      // Signup lifecycle
+      // Signup lifecycle (Stage 1: Sends OTP, does NOT set token or authenticated)
       .addCase(signupUser.pending, (state) => {
         state.isLoading = true;
         state.error = null;
         state.successMessage = null;
       })
-      .addCase(signupUser.fulfilled, (state, action: PayloadAction<AuthResponseData>) => {
+      .addCase(signupUser.fulfilled, (state, action: PayloadAction<SignupInitiateResponse>) => {
+        state.isLoading = false;
+        state.error = null;
+        state.successMessage = action.payload.message || 'Verification code sent to your email';
+      })
+      .addCase(signupUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload || 'Signup failed. Please try again.';
+      })
+
+      // Verify OTP lifecycle (Stage 2: Sets user, token, and authenticated)
+      .addCase(verifyOtp.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+        state.successMessage = null;
+      })
+      .addCase(verifyOtp.fulfilled, (state, action: PayloadAction<AuthResponseData>) => {
         state.isLoading = false;
         state.isInitialized = true;
         state.user = action.payload.user;
         state.token = action.payload.accessToken;
         state.isAuthenticated = true;
         state.error = null;
-        state.successMessage = 'Account created successfully';
+        state.successMessage = 'Email verified and account created successfully!';
 
-        // Persist token using the convention used in client.ts
         if (action.payload.accessToken) {
           localStorage.setItem('token', action.payload.accessToken);
         }
       })
-      .addCase(signupUser.rejected, (state, action) => {
+      .addCase(verifyOtp.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload || 'Signup failed. Please try again.';
+        state.error = action.payload || 'Verification failed. Please try again.';
       })
+
+      // Resend OTP lifecycle
+      .addCase(resendOtp.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+        state.successMessage = null;
+      })
+      .addCase(resendOtp.fulfilled, (state, action: PayloadAction<string>) => {
+        state.isLoading = false;
+        state.error = null;
+        state.successMessage = action.payload;
+      })
+      .addCase(resendOtp.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload || 'Failed to resend code. Please try again.';
+      })
+
       // Login lifecycle
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
@@ -190,7 +268,6 @@ export const authSlice = createSlice({
         state.error = null;
         state.successMessage = 'Login successful';
 
-        // Persist token using the convention used in client.ts
         if (action.payload.accessToken) {
           localStorage.setItem('token', action.payload.accessToken);
         }
@@ -202,8 +279,8 @@ export const authSlice = createSlice({
   },
 });
 
-
 export const { clearAuthError, clearAuthSuccess, logout } = authSlice.actions;
 export default authSlice.reducer;
+
 
 

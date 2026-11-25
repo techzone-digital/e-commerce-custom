@@ -19,6 +19,10 @@ export const config = {
     secret: process.env.JWT_SECRET || '',
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
   },
+  email: {
+    resendApiKey: process.env.RESEND_API_KEY || '',
+    from: process.env.EMAIL_FROM || 'Shivam Crafts <onboarding@resend.dev>',
+  },
 } as const;
 
 

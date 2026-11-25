@@ -1,15 +1,52 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, AlertCircle, CheckCircle2, RotateCw, Mail } from 'lucide-react';
 import { ThemeToggle } from '../../components/common';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import {
+  verifyOtp,
+  resendOtp,
+  clearAuthError,
+  clearAuthSuccess,
+} from '@/features/auth/slices/authSlice';
 
 const RESEND_INTERVAL_SECONDS = 45;
 
 export const VerifyOtp: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+
+  const { isLoading, error, successMessage, isAuthenticated } = useAppSelector(
+    (state) => state.auth
+  );
 
   // Retrieve email from navigation state or fallback
   const navigationEmail = (location.state as { email?: string } | null)?.email || '';
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  // Clean errors/messages on mount & unmount
+  useEffect(() => {
+    dispatch(clearAuthError());
+    dispatch(clearAuthSuccess());
+    return () => {
+      dispatch(clearAuthError());
+      dispatch(clearAuthSuccess());
+    };
+  }, [dispatch]);
+
+  // If user navigates directly without email in state, redirect to signup
+  useEffect(() => {
+    if (!navigationEmail) {
+      navigate('/signup', { replace: true });
+    }
+  }, [navigationEmail, navigate]);
 
   // State for 6 OTP digits
   const [otp, setOtp] = useState<string[]>(['', '', '', '', '', '']);
@@ -18,12 +55,6 @@ export const VerifyOtp: React.FC = () => {
   // Timer & state for Resend OTP
   const [secondsLeft, setSecondsLeft] = useState<number>(RESEND_INTERVAL_SECONDS);
   const [isResending, setIsResending] = useState<boolean>(false);
-
-  // Success / error / verification status messages
-  const [statusMessage, setStatusMessage] = useState<{
-    type: 'success' | 'error' | 'info';
-    text: string;
-  } | null>(null);
 
   // Countdown timer effect
   useEffect(() => {
@@ -40,6 +71,7 @@ export const VerifyOtp: React.FC = () => {
   useEffect(() => {
     inputRefs.current[0]?.focus();
   }, []);
+
 
   const handleChange = (index: number, value: string) => {
     // Only accept numeric digits
@@ -117,36 +149,44 @@ export const VerifyOtp: React.FC = () => {
 
   const isOtpComplete = otp.every((digit) => digit.trim() !== '');
 
-  const handleVerify = (e: React.FormEvent) => {
+  const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isOtpComplete) return;
+    if (!isOtpComplete || isLoading) return;
 
     const fullCode = otp.join('');
 
-    // Frontend-only temporary simulation indicating backend is not yet connected
-    setStatusMessage({
-      type: 'info',
-      text: `Entered code: ${fullCode}. Frontend verification UI ready! Backend OTP verification endpoint is not connected yet.`,
-    });
+    const resultAction = await dispatch(
+      verifyOtp({
+        email: navigationEmail,
+        otp: fullCode,
+      })
+    );
+
+    if (verifyOtp.fulfilled.match(resultAction)) {
+      setTimeout(() => {
+        navigate('/', { replace: true });
+      }, 1000);
+    }
   };
 
-  const handleResend = () => {
-    if (secondsLeft > 0 || isResending) return;
+  const handleResend = async () => {
+    if (secondsLeft > 0 || isResending || !navigationEmail) return;
 
     setIsResending(true);
-    setStatusMessage(null);
 
-    // Simulate resend locally with UI feedback
-    setTimeout(() => {
+    const resultAction = await dispatch(
+      resendOtp({
+        email: navigationEmail,
+      })
+    );
+
+    setIsResending(false);
+
+    if (resendOtp.fulfilled.match(resultAction)) {
       setSecondsLeft(RESEND_INTERVAL_SECONDS);
-      setIsResending(false);
       setOtp(['', '', '', '', '', '']);
       inputRefs.current[0]?.focus();
-      setStatusMessage({
-        type: 'success',
-        text: 'A new 6-digit verification code has been resent (simulated locally).',
-      });
-    }, 600);
+    }
   };
 
   return (
@@ -236,24 +276,24 @@ export const VerifyOtp: React.FC = () => {
               )}
             </div>
 
-            {/* Status / Feedback Banner */}
-            {statusMessage && (
+            {/* Redux Feedback Messages */}
+            {error && (
+              <div
+                role="alert"
+                className="mb-6 p-3.5 bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 text-xs flex items-start gap-2.5"
+              >
+                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                <span className="leading-relaxed">{error}</span>
+              </div>
+            )}
+
+            {successMessage && (
               <div
                 role="status"
-                className={`mb-6 p-3.5 text-xs flex items-start gap-2.5 border ${
-                  statusMessage.type === 'error'
-                    ? 'bg-red-500/10 border-red-500/30 text-red-600 dark:text-red-400'
-                    : statusMessage.type === 'success'
-                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400'
-                    : 'bg-primary/10 border-primary/30 text-text-main'
-                }`}
+                className="mb-6 p-3.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs flex items-start gap-2.5"
               >
-                {statusMessage.type === 'error' ? (
-                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-red-500" />
-                ) : (
-                  <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-primary" />
-                )}
-                <span className="leading-relaxed">{statusMessage.text}</span>
+                <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+                <span className="leading-relaxed">{successMessage}</span>
               </div>
             )}
 
@@ -288,10 +328,10 @@ export const VerifyOtp: React.FC = () => {
               <div>
                 <button
                   type="submit"
-                  disabled={!isOtpComplete}
+                  disabled={!isOtpComplete || isLoading}
                   className="w-full py-3.5 px-6 bg-primary hover:bg-primary-hover disabled:opacity-40 disabled:cursor-not-allowed text-surface text-[11px] font-sans font-medium tracking-[0.2em] uppercase transition-colors duration-200 rounded-none shadow-none flex items-center justify-center gap-2"
                 >
-                  Verify Email
+                  {isLoading ? 'Verifying…' : 'Verify Email'}
                 </button>
               </div>
 

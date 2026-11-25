@@ -24,6 +24,20 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface VerifyOtpRequest {
+  email: string;
+  otp: string;
+}
+
+export interface ResendOtpRequest {
+  email: string;
+}
+
+export interface SignupInitiateResponse {
+  email: string;
+  message: string;
+}
+
 export interface AuthResponseData {
   user: User;
   accessToken: string;

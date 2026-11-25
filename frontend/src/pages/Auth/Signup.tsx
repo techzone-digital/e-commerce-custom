@@ -164,7 +164,7 @@ export const Signup: React.FC = () => {
                 Customer Registration
               </p>
               <h1 className="font-serif text-[2.6rem] leading-tight font-light italic text-text-main mb-2">
-                Create Account
+                Sign Up
               </h1>
               <p className="text-xs font-sans text-text-secondary leading-relaxed">
                 Join Shivam Crafts and discover timeless jewellery.
@@ -346,7 +346,7 @@ export const Signup: React.FC = () => {
                   disabled={formik.isSubmitting || isLoading}
                   className="w-full py-3.5 px-6 bg-primary hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed text-surface text-[11px] font-sans font-medium tracking-[0.2em] uppercase transition-colors duration-200 rounded-none shadow-none flex items-center justify-center gap-2"
                 >
-                  {isLoading ? 'Creating Account…' : 'Create Account'}
+                 {isLoading ? 'Signing Up…' : 'Sign Up'}
                 </button>
               </div>
             </form>

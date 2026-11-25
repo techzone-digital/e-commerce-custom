@@ -5,9 +5,13 @@ import {
   customerSignupSchema,
   customerLoginSchema,
   adminLoginSchema,
+  verifyOtpSchema,
+  resendOtpSchema,
 } from './auth.validation.js';
 import {
   signupCustomer,
+  verifyOtp,
+  resendOtp,
   loginCustomer,
   loginAdmin,
   getCurrentUser,
@@ -17,6 +21,8 @@ import {
 export const authRoutes = Router();
 
 authRoutes.post('/signup', validate(customerSignupSchema), signupCustomer);
+authRoutes.post('/verify-otp', validate(verifyOtpSchema), verifyOtp);
+authRoutes.post('/resend-otp', validate(resendOtpSchema), resendOtp);
 authRoutes.post('/login', validate(customerLoginSchema), loginCustomer);
 authRoutes.get('/me', authenticate, getCurrentUser);
 
@@ -24,6 +30,7 @@ authRoutes.get('/me', authenticate, getCurrentUser);
 export const adminAuthRoutes = Router();
 
 adminAuthRoutes.post('/login', validate(adminLoginSchema), loginAdmin);
+
 
 
 

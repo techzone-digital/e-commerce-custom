@@ -1,20 +1,57 @@
 import { Request, Response } from 'express';
 import { asyncHandler } from '../../utils/asyncHandler.js';
 import * as authService from './auth.service.js';
-import { CustomerSignupInput, CustomerLoginInput, AdminLoginInput } from './auth.types.js';
+import {
+  CustomerSignupInput,
+  CustomerLoginInput,
+  AdminLoginInput,
+  VerifyOtpInput,
+  ResendOtpInput,
+} from './auth.types.js';
 
 /**
- * Handle customer registration.
+ * Handle customer registration initiation (sends verification OTP).
  * Route: POST /api/v1/auth/signup
  */
 export const signupCustomer = asyncHandler(
   async (req: Request<{}, {}, CustomerSignupInput>, res: Response): Promise<void> => {
     const result = await authService.registerCustomer(req.body);
 
+    res.status(200).json({
+      success: true,
+      message: 'Verification code sent to your email address.',
+      data: result,
+    });
+  }
+);
+
+/**
+ * Handle customer OTP verification and account completion.
+ * Route: POST /api/v1/auth/verify-otp
+ */
+export const verifyOtp = asyncHandler(
+  async (req: Request<{}, {}, VerifyOtpInput>, res: Response): Promise<void> => {
+    const result = await authService.verifySignupOtp(req.body);
+
     res.status(201).json({
       success: true,
-      message: 'Account created successfully.',
+      message: 'Email verified and account created successfully.',
       data: result,
+    });
+  }
+);
+
+/**
+ * Handle customer OTP resend.
+ * Route: POST /api/v1/auth/resend-otp
+ */
+export const resendOtp = asyncHandler(
+  async (req: Request<{}, {}, ResendOtpInput>, res: Response): Promise<void> => {
+    const result = await authService.resendSignupOtp(req.body);
+
+    res.status(200).json({
+      success: true,
+      message: result.message,
     });
   }
 );
@@ -66,6 +103,7 @@ export const getCurrentUser = asyncHandler(
     });
   }
 );
+
 
 
 

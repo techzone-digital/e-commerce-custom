@@ -86,9 +86,47 @@ export const adminLoginSchema = z.object({
     .strict(),
 });
 
+/**
+ * Verify OTP Validation Schema
+ */
+export const verifyOtpSchema = z.object({
+  body: z
+    .object({
+      email: z
+        .string({ required_error: 'Email address is required' })
+        .trim()
+        .email('Please enter a valid email address')
+        .toLowerCase(),
+      otp: z
+        .string({ required_error: 'OTP code is required' })
+        .trim()
+        .length(6, 'OTP must be exactly 6 digits')
+        .regex(/^\d{6}$/, 'OTP must be numeric'),
+    })
+    .strict(),
+});
+
+/**
+ * Resend OTP Validation Schema
+ */
+export const resendOtpSchema = z.object({
+  body: z
+    .object({
+      email: z
+        .string({ required_error: 'Email address is required' })
+        .trim()
+        .email('Please enter a valid email address')
+        .toLowerCase(),
+    })
+    .strict(),
+});
+
 // Inferred TypeScript types for validated request payloads
 export type CustomerSignupInput = z.infer<typeof customerSignupSchema>['body'];
 export type CustomerLoginInput = z.infer<typeof customerLoginSchema>['body'];
 export type AdminLoginInput = z.infer<typeof adminLoginSchema>['body'];
+export type VerifyOtpInput = z.infer<typeof verifyOtpSchema>['body'];
+export type ResendOtpInput = z.infer<typeof resendOtpSchema>['body'];
+
 
 

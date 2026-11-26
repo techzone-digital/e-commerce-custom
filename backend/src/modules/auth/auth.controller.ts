@@ -8,6 +8,7 @@ import {
   VerifyOtpInput,
   ResendOtpInput,
 } from './auth.types.js';
+import { GoogleAuthInput } from './auth.validation.js';
 
 /**
  * Handle customer registration initiation (sends verification OTP).
@@ -67,6 +68,22 @@ export const loginCustomer = asyncHandler(
     res.status(200).json({
       success: true,
       message: 'Login successful.',
+      data: result,
+    });
+  }
+);
+
+/**
+ * Handle customer Google authentication.
+ * Route: POST /api/v1/auth/google
+ */
+export const googleAuth = asyncHandler(
+  async (req: Request<{}, {}, GoogleAuthInput>, res: Response): Promise<void> => {
+    const result = await authService.loginWithGoogle(req.body.idToken);
+
+    res.status(200).json({
+      success: true,
+      message: 'Google login successful.',
       data: result,
     });
   }

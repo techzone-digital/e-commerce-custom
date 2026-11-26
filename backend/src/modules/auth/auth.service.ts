@@ -1,4 +1,6 @@
 import bcrypt from 'bcryptjs';
+import { OAuth2Client } from 'google-auth-library';
+import { config } from '../../config/env.js';
 import { User } from '../users/users.model.js';
 import { IUserDocument } from '../users/users.types.js';
 import { Otp } from '../otp/otp.model.js';
@@ -260,7 +262,15 @@ export const loginCustomer = async (
 
   const user = await User.findOne({ email: normalizedEmail }).select('+password');
 
-  if (!user || !user.password) {
+  if (!user) {
+    throw new AppError('Invalid email or password.', 401);
+  }
+
+  if (user.authProvider === 'google') {
+    throw new AppError('This account uses Google Sign-In. Please continue with Google.', 400);
+  }
+
+  if (!user.password) {
     throw new AppError('Invalid email or password.', 401);
   }
 
@@ -290,6 +300,108 @@ export const loginCustomer = async (
   };
 };
 
+const googleClient = new OAuth2Client();
+
+/**
+ * Authenticate or register a customer using a verified Google ID token.
+ * - Customer-only: rejects admin/superadmin accounts.
+ * - Does not auto-link to existing local password accounts.
+ */
+export const loginWithGoogle = async (idToken: string): Promise<AuthResponseData> => {
+  if (!config.google.clientId) {
+    throw new AppError('Google authentication is not configured on the server.', 503);
+  }
+
+  let payload;
+  try {
+    const ticket = await googleClient.verifyIdToken({
+      idToken,
+      audience: config.google.clientId,
+    });
+    payload = ticket.getPayload();
+  } catch {
+    throw new AppError('Invalid or expired Google token.', 401);
+  }
+
+  if (!payload || !payload.sub || !payload.email) {
+    throw new AppError('Google account information is incomplete.', 400);
+  }
+
+  if (payload.email_verified !== true) {
+    throw new AppError('Your Google email address is not verified.', 400);
+  }
+
+  const normalizedEmail = payload.email.toLowerCase().trim();
+  const googleId = payload.sub;
+
+  // 1. Look up by googleId first
+  let user = await User.findOne({ googleId });
+
+  if (user) {
+    if (user.role !== ROLES.CUSTOMER) {
+      throw new AppError('Google authentication is only available for customer accounts.', 403);
+    }
+    if (user.status !== 'active') {
+      throw new AppError('Your account has been deactivated or suspended. Please contact support.', 403);
+    }
+  } else {
+    // 2. Look up by normalized email
+    const existingByEmail = await User.findOne({ email: normalizedEmail });
+
+    if (existingByEmail) {
+      if (existingByEmail.role !== ROLES.CUSTOMER) {
+        throw new AppError('Google authentication is only available for customer accounts.', 403);
+      }
+      if (existingByEmail.authProvider === 'local') {
+        throw new AppError(
+          'An account with this email already exists. Please sign in with your email and password.',
+          409
+        );
+      }
+      throw new AppError(
+        'This email is already associated with a different Google account.',
+        409
+      );
+    }
+
+    // 3. Create new Google-only customer
+    const rawName = (payload.name || normalizedEmail.split('@')[0] || 'Customer').trim();
+    const safeName = rawName.length >= 2 ? rawName.slice(0, 60) : 'Customer';
+
+    try {
+      user = await User.create({
+        name: safeName,
+        email: normalizedEmail,
+        authProvider: 'google',
+        googleId,
+        role: ROLES.CUSTOMER,
+        isEmailVerified: true,
+        status: 'active',
+        ...(payload.picture ? { avatar: payload.picture } : {}),
+      });
+    } catch (error: any) {
+      if (error?.code === 11000) {
+        throw new AppError(
+          'An account with this email or Google identity already exists. Please try signing in again.',
+          409
+        );
+      }
+      throw error;
+    }
+  }
+
+  const accessToken = generateAccessToken({
+    userId: user._id.toString(),
+    email: user.email,
+    role: user.role,
+  });
+
+  return {
+    user: toSafeUser(user),
+    accessToken,
+  };
+};
+
 /**
  * Authenticate admin or superadmin login.
  * Unchanged from original implementation.
@@ -301,7 +413,15 @@ export const loginAdmin = async (
 
   const user = await User.findOne({ email: normalizedEmail }).select('+password');
 
-  if (!user || !user.password) {
+  if (!user) {
+    throw new AppError('Invalid email or password.', 401);
+  }
+
+  if (user.authProvider === 'google') {
+    throw new AppError('This account uses Google Sign-In. Please continue with Google.', 400);
+  }
+
+  if (!user.password) {
     throw new AppError('Invalid email or password.', 401);
   }
 

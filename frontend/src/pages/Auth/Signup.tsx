@@ -363,14 +363,9 @@ export const Signup: React.FC = () => {
               </div>
             </div>
 
-            {/* Google Signup UI */}
+            {/* Google Signup */}
             <div>
-              <GoogleLoginButton
-                text="Continue with Google"
-                onClick={() => {
-                  console.log('Google signup clicked (UI placeholder - auth integration pending)');
-                }}
-              />
+              <GoogleLoginButton text="Continue with Google" />
             </div>
 
             {/* Footer link */}

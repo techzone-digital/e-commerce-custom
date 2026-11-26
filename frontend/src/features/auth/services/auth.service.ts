@@ -4,6 +4,7 @@ import { ApiResponse } from '@/types/api.types';
 import {
   SignupRequest,
   LoginRequest,
+  GoogleAuthRequest,
   VerifyOtpRequest,
   ResendOtpRequest,
   SignupInitiateResponse,
@@ -39,6 +40,14 @@ export const authService = {
   login: async (payload: LoginRequest): Promise<ApiResponse<AuthResponseData>> => {
     const response = await apiClient.post<ApiResponse<AuthResponseData>>(
       API_ENDPOINTS.AUTH.LOGIN,
+      payload
+    );
+    return response.data;
+  },
+
+  googleLogin: async (payload: GoogleAuthRequest): Promise<ApiResponse<AuthResponseData>> => {
+    const response = await apiClient.post<ApiResponse<AuthResponseData>>(
+      API_ENDPOINTS.AUTH.GOOGLE,
       payload
     );
     return response.data;

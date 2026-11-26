@@ -24,6 +24,10 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface GoogleAuthRequest {
+  idToken: string;
+}
+
 export interface VerifyOtpRequest {
   email: string;
   otp: string;

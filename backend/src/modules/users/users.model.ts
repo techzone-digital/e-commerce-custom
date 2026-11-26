@@ -32,9 +32,25 @@ const userSchema = new Schema<IUserDocument, UserModelType, IUserMethods>(
     },
     password: {
       type: String,
-      required: [true, 'Password is required'],
+      required: [
+        function (this: IUserDocument) {
+          return this.authProvider === 'local';
+        },
+        'Password is required',
+      ],
       minlength: [8, 'Password must be at least 8 characters'],
       select: false, // Prevents password from being returned in queries by default
+    },
+    authProvider: {
+      type: String,
+      enum: ['local', 'google'],
+      default: 'local',
+    },
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true,
+      trim: true,
     },
     role: {
       type: String,

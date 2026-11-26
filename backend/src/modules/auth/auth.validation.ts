@@ -121,12 +121,26 @@ export const resendOtpSchema = z.object({
     .strict(),
 });
 
+/**
+ * Google Authentication Validation Schema
+ */
+export const googleAuthSchema = z.object({
+  body: z
+    .object({
+      idToken: z
+        .string({ required_error: 'Google ID token is required' })
+        .min(1, 'Google ID token is required'),
+    })
+    .strict(),
+});
+
 // Inferred TypeScript types for validated request payloads
 export type CustomerSignupInput = z.infer<typeof customerSignupSchema>['body'];
 export type CustomerLoginInput = z.infer<typeof customerLoginSchema>['body'];
 export type AdminLoginInput = z.infer<typeof adminLoginSchema>['body'];
 export type VerifyOtpInput = z.infer<typeof verifyOtpSchema>['body'];
 export type ResendOtpInput = z.infer<typeof resendOtpSchema>['body'];
+export type GoogleAuthInput = z.infer<typeof googleAuthSchema>['body'];
 
 
 

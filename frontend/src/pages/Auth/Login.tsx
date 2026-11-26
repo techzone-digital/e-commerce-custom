@@ -300,14 +300,9 @@ export const Login: React.FC = () => {
               </div>
             </div>
 
-            {/* Google Login UI */}
+            {/* Google Login */}
             <div>
-              <GoogleLoginButton
-                text="Continue with Google"
-                onClick={() => {
-                  console.log('Google login clicked (UI placeholder - auth integration pending)');
-                }}
-              />
+              <GoogleLoginButton text="Continue with Google" />
             </div>
 
             {/* Footer link */}

@@ -32,11 +32,11 @@ export const CustomerFooter: React.FC = () => {
   return (
     <footer className="bg-surface border-t border-border transition-colors duration-200">
       {/* Main Footer Grid */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
 
           {/* Brand Column */}
-          <div className="sm:col-span-2 lg:col-span-1">
+          <div>
             <Link to="/" className="inline-flex items-center gap-2.5 mb-5">
               <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
                 <Gem className="w-3.5 h-3.5 text-primary" />
@@ -68,10 +68,10 @@ export const CustomerFooter: React.FC = () => {
 
           {/* Shop Links */}
           <div>
-            <h3 className="text-xs uppercase tracking-widest font-semibold text-text-main mb-5">
+            <h3 className="text-xs uppercase tracking-widest font-semibold text-text-main mb-4">
               Shop
             </h3>
-            <ul className="space-y-3">
+            <ul className="space-y-2.5">
               {footerLinks.shop.map((link) => (
                 <li key={link.label}>
                   <Link
@@ -87,10 +87,10 @@ export const CustomerFooter: React.FC = () => {
 
           {/* Support Links */}
           <div>
-            <h3 className="text-xs uppercase tracking-widest font-semibold text-text-main mb-5">
+            <h3 className="text-xs uppercase tracking-widest font-semibold text-text-main mb-4">
               Customer Support
             </h3>
-            <ul className="space-y-3">
+            <ul className="space-y-2.5">
               {footerLinks.support.map((link) => (
                 <li key={link.label}>
                   <Link
@@ -106,26 +106,10 @@ export const CustomerFooter: React.FC = () => {
 
           {/* Account + Contact */}
           <div>
-            <h3 className="text-xs uppercase tracking-widest font-semibold text-text-main mb-5">
-              Account
-            </h3>
-            <ul className="space-y-3 mb-8">
-              {footerLinks.account.map((link) => (
-                <li key={link.label}>
-                  <Link
-                    to={link.to}
-                    className="text-sm text-text-secondary hover:text-primary transition-colors duration-200"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-
-            <h3 className="text-xs uppercase tracking-widest font-semibold text-text-main mb-4">
+            <h3 className="text-xs uppercase tracking-widest font-semibold text-text-main mb-3.5">
               Contact
             </h3>
-            <ul className="space-y-3">
+            <ul className="space-y-2.5">
               <li className="flex items-start gap-2.5">
                 <Mail className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" strokeWidth={1.75} />
                 <span className="text-sm text-text-secondary">contact@shivamcrafts.com</span>
@@ -145,7 +129,7 @@ export const CustomerFooter: React.FC = () => {
 
       {/* Bottom Bar */}
       <div className="border-t border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
           <p className="text-xs text-text-secondary/70">
             &copy; {year} Shivam Crafts. All rights reserved.
           </p>

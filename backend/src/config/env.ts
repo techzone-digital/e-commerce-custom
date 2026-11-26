@@ -23,6 +23,9 @@ export const config = {
     resendApiKey: process.env.RESEND_API_KEY || '',
     from: process.env.EMAIL_FROM || 'Shivam Crafts <onboarding@resend.dev>',
   },
+  google: {
+    clientId: process.env.GOOGLE_CLIENT_ID || '',
+  },
 } as const;
 
 

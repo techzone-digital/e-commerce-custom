@@ -7,12 +7,14 @@ import {
   adminLoginSchema,
   verifyOtpSchema,
   resendOtpSchema,
+  googleAuthSchema,
 } from './auth.validation.js';
 import {
   signupCustomer,
   verifyOtp,
   resendOtp,
   loginCustomer,
+  googleAuth,
   loginAdmin,
   getCurrentUser,
 } from './auth.controller.js';
@@ -24,6 +26,7 @@ authRoutes.post('/signup', validate(customerSignupSchema), signupCustomer);
 authRoutes.post('/verify-otp', validate(verifyOtpSchema), verifyOtp);
 authRoutes.post('/resend-otp', validate(resendOtpSchema), resendOtp);
 authRoutes.post('/login', validate(customerLoginSchema), loginCustomer);
+authRoutes.post('/google', validate(googleAuthSchema), googleAuth);
 authRoutes.get('/me', authenticate, getCurrentUser);
 
 // Admin authentication router: mounted at /api/v1/admin

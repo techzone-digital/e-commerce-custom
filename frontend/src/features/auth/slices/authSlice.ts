@@ -4,6 +4,7 @@ import { authService } from '../services/auth.service';
 import {
   SignupRequest,
   LoginRequest,
+  GoogleAuthRequest,
   VerifyOtpRequest,
   ResendOtpRequest,
   SignupInitiateResponse,
@@ -144,6 +145,28 @@ export const loginUser = createAsyncThunk<
   }
 });
 
+export const googleLoginThunk = createAsyncThunk<
+  AuthResponseData,
+  GoogleAuthRequest,
+  { rejectValue: string }
+>('auth/googleLogin', async (googleData, { rejectWithValue }) => {
+  try {
+    const response = await authService.googleLogin(googleData);
+    if (!response.success || !response.data) {
+      return rejectWithValue(response.message || 'Google login failed');
+    }
+    return response.data;
+  } catch (err: unknown) {
+    if (isAxiosError<ApiResponse<unknown>>(err) && err.response?.data?.message) {
+      return rejectWithValue(err.response.data.message);
+    }
+    if (err instanceof Error) {
+      return rejectWithValue(err.message);
+    }
+    return rejectWithValue('An unexpected error occurred during Google login. Please try again.');
+  }
+});
+
 export const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -275,6 +298,30 @@ export const authSlice = createSlice({
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload || 'Login failed. Please try again.';
+      })
+
+      // Google Login lifecycle
+      .addCase(googleLoginThunk.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+        state.successMessage = null;
+      })
+      .addCase(googleLoginThunk.fulfilled, (state, action: PayloadAction<AuthResponseData>) => {
+        state.isLoading = false;
+        state.isInitialized = true;
+        state.user = action.payload.user;
+        state.token = action.payload.accessToken;
+        state.isAuthenticated = true;
+        state.error = null;
+        state.successMessage = 'Google login successful';
+
+        if (action.payload.accessToken) {
+          localStorage.setItem('token', action.payload.accessToken);
+        }
+      })
+      .addCase(googleLoginThunk.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload || 'Google login failed. Please try again.';
       });
   },
 });

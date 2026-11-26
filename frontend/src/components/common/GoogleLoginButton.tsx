@@ -1,4 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
+import { env } from '@/config/env';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { googleLoginThunk } from '@/features/auth/slices/authSlice';
 
 /**
  * Official Google 'G' icon in SVG format.
@@ -50,28 +54,75 @@ export const GoogleLoginButton: React.FC<GoogleLoginButtonProps> = ({
   disabled = false,
   className = '',
 }) => {
+  const dispatch = useAppDispatch();
+  const { isLoading: authLoading } = useAppSelector((state) => state.auth);
+  const [localError, setLocalError] = useState<string | null>(null);
+
+  const effectiveLoading = isLoading || authLoading;
+
+  if (!env.googleClientId) {
+    return (
+      <div className="w-full">
+        <button
+          type="button"
+          onClick={onClick}
+          disabled
+          title="Google Sign-In is not configured"
+          className={`
+            w-full relative flex items-center justify-center gap-3 py-3 px-6
+            border border-border bg-surface text-text-main
+            text-[11px] font-sans font-medium tracking-[0.16em] uppercase
+            opacity-50 cursor-not-allowed rounded-none shadow-none select-none
+            ${className}
+          `}
+        >
+          <GoogleIcon className="w-4 h-4 flex-shrink-0" />
+          <span>{text}</span>
+        </button>
+      </div>
+    );
+  }
+
+  const handleSuccess = (credentialResponse: CredentialResponse) => {
+    setLocalError(null);
+    if (!credentialResponse.credential) {
+      setLocalError('Google sign-in did not return a valid credential. Please try again.');
+      return;
+    }
+    dispatch(googleLoginThunk({ idToken: credentialResponse.credential }));
+  };
+
+  const handleError = () => {
+    setLocalError('Google sign-in was cancelled or failed. Please try again.');
+  };
+
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled || isLoading}
-      className={`
-        w-full relative flex items-center justify-center gap-3 py-3 px-6
-        border border-border bg-surface text-text-main hover:border-primary/60 hover:bg-primary/[0.03]
-        active:bg-primary/[0.06] focus:outline-none focus:ring-1 focus:ring-primary/50
-        text-[11px] font-sans font-medium tracking-[0.16em] uppercase
-        transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed
-        rounded-none shadow-none cursor-pointer select-none
-        ${className}
-      `}
-    >
-      {isLoading ? (
-        <span className="inline-block w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+    <div className={`w-full flex flex-col items-center ${className}`}>
+      {effectiveLoading || disabled ? (
+        <button
+          type="button"
+          disabled
+          className="w-full relative flex items-center justify-center gap-3 py-3 px-6 border border-border bg-surface text-text-main text-[11px] font-sans font-medium tracking-[0.16em] uppercase opacity-50 cursor-not-allowed rounded-none shadow-none select-none"
+        >
+          <span className="inline-block w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+          <span>{text}</span>
+        </button>
       ) : (
-        <GoogleIcon className="w-4 h-4 flex-shrink-0" />
+        <div className="w-full flex justify-center">
+          <GoogleLogin
+            onSuccess={handleSuccess}
+            onError={handleError}
+            text="continue_with"
+            shape="rectangular"
+            size="large"
+            width="100%"
+          />
+        </div>
       )}
-      <span>{text}</span>
-    </button>
+      {localError && (
+        <p className="mt-2 text-xs text-red-500 font-sans text-center">{localError}</p>
+      )}
+    </div>
   );
 };
 

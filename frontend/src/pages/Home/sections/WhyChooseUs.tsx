@@ -28,7 +28,7 @@ const WHY_US = [
 export const WhyChooseUs: React.FC = () => {
   return (
     <section
-      className="py-16 md:py-20 lg:py-24 bg-bg transition-colors duration-200"
+      className="pt-16 md:pt-20 lg:pt-24 pb-10 md:pb-12 lg:pb-14 bg-bg transition-colors duration-200"
       aria-labelledby="why-choose-heading"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

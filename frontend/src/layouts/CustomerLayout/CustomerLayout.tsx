@@ -1,13 +1,16 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { CustomerHeader } from '../../components/customer/CustomerHeader';
 import { CustomerFooter } from '../../components/customer/CustomerFooter';
 
 export const CustomerLayout: React.FC = () => {
+  const { pathname } = useLocation();
+  const isHomePage = pathname === '/';
+
   return (
     <div className="min-h-screen bg-bg text-text-main flex flex-col transition-colors duration-200">
       <CustomerHeader />
-      <main className="flex-1">
+      <main className={`flex-1 ${isHomePage ? '' : 'pt-24 md:pt-28'}`}>
         <Outlet />
       </main>
       <CustomerFooter />

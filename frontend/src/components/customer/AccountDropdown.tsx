@@ -161,7 +161,7 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = ({
                 <LogIn className="w-3.5 h-3.5 text-primary" strokeWidth={1.75} />
                 <span>Login</span>
               </Link>
-              <Link
+              {/* <Link
                 to="/signup"
                 onClick={handleLinkClick}
                 className="flex items-center gap-3 px-4 py-2.5 text-xs uppercase tracking-wider font-medium text-[#28251F] hover:text-primary hover:bg-[#F5EFE6] transition-colors"
@@ -169,7 +169,7 @@ export const AccountDropdown: React.FC<AccountDropdownProps> = ({
               >
                 <UserPlus className="w-3.5 h-3.5 text-primary" strokeWidth={1.75} />
                 <span>Sign Up</span>
-              </Link>
+              </Link> */}
             </div>
           </>
         )}

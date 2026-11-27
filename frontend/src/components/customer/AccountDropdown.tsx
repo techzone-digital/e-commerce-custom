@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { UserRound, LogIn, UserPlus, LogOut, Package, User } from 'lucide-react';
+import { UserRound, LogIn, LogOut, Package, User } from 'lucide-react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { logout } from '@/features/auth/slices/authSlice';
 

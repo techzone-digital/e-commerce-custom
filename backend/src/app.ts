@@ -10,6 +10,9 @@ import { notFoundHandler } from './middleware/notFoundHandler.js';
 export const createApp = (): Application => {
   const app = express();
 
+  // Trust the first proxy hop (e.g., Render's load balancer) so req.ip resolves to the client IP
+  app.set('trust proxy', 1);
+
   // Core Security & Utilities Middlewares
   app.use(helmet());
   app.use(cors({ origin: config.clientUrl, credentials: true }));

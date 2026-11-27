@@ -11,7 +11,7 @@ const pendingRegistrationSchema = new Schema(
     passwordHash: { type: String, required: true },
   },
   { _id: false }
-);
+);  
 
 const otpSchema = new Schema<IOtpDocument>(
   {

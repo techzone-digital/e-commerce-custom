@@ -15,7 +15,18 @@ export const createApp = (): Application => {
 
   // Core Security & Utilities Middlewares
   app.use(helmet());
-  app.use(cors({ origin: config.clientUrl, credentials: true }));
+  app.use(
+    cors({
+      origin: (origin, callback) => {
+        if (!origin || config.corsOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error(`CORS blocked for origin: ${origin}`));
+        }
+      },
+      credentials: true,
+    })
+  );
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
 

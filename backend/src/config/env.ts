@@ -11,7 +11,14 @@ if (!mongoUri) {
 export const config = {
   env: process.env.NODE_ENV || 'development',
   port: parseInt(process.env.PORT || '5000', 10),
-  clientUrl: process.env.CLIENT_URL || process.env.FRONTEND_URL || 'http://localhost:3000',
+  clientUrl: process.env.CLIENT_URL || process.env.FRONTEND_URL || 'http://localhost:5173',
+  adminUrl: process.env.ADMIN_URL || 'http://localhost:5174',
+  corsOrigins: process.env.CORS_ORIGINS
+    ? process.env.CORS_ORIGINS.split(',').map((origin) => origin.trim()).filter(Boolean)
+    : [
+        process.env.CLIENT_URL || process.env.FRONTEND_URL || 'http://localhost:5173',
+        process.env.ADMIN_URL || 'http://localhost:5174',
+      ],
   database: {
     uri: mongoUri || '',
   },
